@@ -1,0 +1,64 @@
+{
+  "@@locale": "en",
+  "appTitle": "Spider Solitaire",
+  "home": "Home",
+  "newGame": "New Game",
+  "continueGame": "Continue",
+  "history": "History",
+  "ranking": "Ranking",
+  "settings": "Settings",
+  "score": "Score",
+  "moves": "Moves",
+  "time": "Time",
+  "difficulty": "Difficulty",
+  "oneSuit": "1 Suit",
+  "twoSuits": "2 Suits",
+  "fourSuits": "4 Suits",
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
+  "start": "Start",
+  "youWin": "You Win!",
+  "congratulations": "Congratulations! You completed the game.",
+  "finalScore": "Final Score: {score}",
+  "@finalScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "totalMoves": "Total Moves: {moves}",
+  "@totalMoves": {
+    "placeholders": {
+      "moves": { "type": "int" }
+    }
+  },
+  "totalTime": "Time: {time}",
+  "@totalTime": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "playAgain": "Play Again",
+  "backToHome": "Back to Home",
+  "noHistory": "No games played yet.",
+  "date": "Date",
+  "result": "Result",
+  "won": "Won",
+  "lost": "Lost",
+  "confirmNewGame": "Confirm New Game",
+  "confirmNewGameMessage": "Are you sure you want to start a new game? Current progress will be lost.",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "sound": "Sound",
+  "animations": "Animations",
+  "defaultDifficulty": "Default Difficulty",
+  "confirmBeforeNewGame": "Confirm before new game",
+  "language": "Language",
+  "english": "English",
+  "spanish": "Spanish",
+  "stockEmpty": "Stock is empty",
+  "allColumnsMustHaveCards": "All columns must have at least one card to deal.",
+  "sequences": "Sequences",
+  "stock": "Stock",
+  "deals": "deals"
+}

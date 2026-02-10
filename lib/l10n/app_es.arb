@@ -1,0 +1,64 @@
+{
+  "@@locale": "es",
+  "appTitle": "Solitario Spider",
+  "home": "Inicio",
+  "newGame": "Nueva Partida",
+  "continueGame": "Continuar",
+  "history": "Historial",
+  "ranking": "Clasificación",
+  "settings": "Ajustes",
+  "score": "Puntuación",
+  "moves": "Movimientos",
+  "time": "Tiempo",
+  "difficulty": "Dificultad",
+  "oneSuit": "1 Palo",
+  "twoSuits": "2 Palos",
+  "fourSuits": "4 Palos",
+  "easy": "Fácil",
+  "medium": "Medio",
+  "hard": "Difícil",
+  "start": "Iniciar",
+  "youWin": "¡Ganaste!",
+  "congratulations": "¡Felicidades! Completaste el juego.",
+  "finalScore": "Puntuación Final: {score}",
+  "@finalScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "totalMoves": "Movimientos Totales: {moves}",
+  "@totalMoves": {
+    "placeholders": {
+      "moves": { "type": "int" }
+    }
+  },
+  "totalTime": "Tiempo: {time}",
+  "@totalTime": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "playAgain": "Jugar de Nuevo",
+  "backToHome": "Volver al Inicio",
+  "noHistory": "No hay partidas jugadas aún.",
+  "date": "Fecha",
+  "result": "Resultado",
+  "won": "Ganada",
+  "lost": "Perdida",
+  "confirmNewGame": "Confirmar Nueva Partida",
+  "confirmNewGameMessage": "¿Estás seguro de que quieres iniciar una nueva partida? El progreso actual se perderá.",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "sound": "Sonido",
+  "animations": "Animaciones",
+  "defaultDifficulty": "Dificultad Predeterminada",
+  "confirmBeforeNewGame": "Confirmar antes de nueva partida",
+  "language": "Idioma",
+  "english": "Inglés",
+  "spanish": "Español",
+  "stockEmpty": "El mazo está vacío",
+  "allColumnsMustHaveCards": "Todas las columnas deben tener al menos una carta para repartir.",
+  "sequences": "Secuencias",
+  "stock": "Mazo",
+  "deals": "repartos"
+}
