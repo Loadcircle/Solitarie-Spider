@@ -153,4 +153,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deals => 'deals';
+
+  @override
+  String get gamePaused => 'Game Paused';
+
+  @override
+  String get allowDealWithEmptyColumns => 'Allow deal with empty columns';
+
+  @override
+  String get allowDealWithEmptyColumnsDescription =>
+      'Allow dealing even when some columns are empty';
+
+  @override
+  String get highlightMovable => 'Highlight movable cards';
+
+  @override
+  String get highlightMovableDescription =>
+      'Dim cards that cannot be picked up';
+
+  @override
+  String get tapToAutoMove => 'Tap to auto-move';
+
+  @override
+  String get tapToAutoMoveDescription =>
+      'Tap a card to move it to the best column';
+
+  @override
+  String get noValidMove => 'No valid move available';
+
+  @override
+  String get youLose => 'Game Over';
+
+  @override
+  String get noMovesLeft => 'No more moves available. Better luck next time!';
+
+  @override
+  String get music => 'Music';
+
+  @override
+  String get portuguese => 'Portuguese';
+
+  @override
+  String get chooseLanguage => 'Choose Language';
+
+  @override
+  String get chooseLanguageMessage => 'Select your preferred language';
+
+  @override
+  String get shop => 'Shop';
+
+  @override
+  String get backgrounds => 'Backgrounds';
+
+  @override
+  String get cardBacks => 'Card Backs';
+
+  @override
+  String get bgDefaultGreen => 'Classic Green';
+
+  @override
+  String get bgDarkEmerald => 'Dark Emerald';
+
+  @override
+  String get bgImage1 => 'Felt Texture';
+
+  @override
+  String get bgImage2 => 'Ornate Felt';
+
+  @override
+  String get cbDefaultBlue => 'Classic Blue';
+
+  @override
+  String get cbDarkRed => 'Dark Red';
+
+  @override
+  String get cbImage1 => 'Red Crosshatch';
+
+  @override
+  String get cbImage2 => 'Royal Spade';
+
+  @override
+  String get selected => 'Selected';
+
+  @override
+  String get fastestTime => 'Fastest Time';
+
+  @override
+  String get averageTime => 'Average Time';
+
+  @override
+  String get longestWinStreak => 'Longest Win Streak';
+
+  @override
+  String get bestScore => 'Best Score';
+
+  @override
+  String get noStats => 'No stats yet for this mode.';
+
+  @override
+  String get noGamesOnDay => 'No games on this day.';
 }

@@ -6,6 +6,7 @@ import '../features/game_board/game_board_screen.dart';
 import '../features/history/history_screen.dart';
 import '../features/ranking/ranking_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/shop/shop_screen.dart';
 
 class AppRouter {
   AppRouter._();
@@ -16,6 +17,7 @@ class AppRouter {
   static const String history = '/history';
   static const String ranking = '/ranking';
   static const String settings = '/settings';
+  static const String shop = '/shop';
 
   static Route<dynamic> onGenerateRoute(RouteSettings routeSettings) {
     switch (routeSettings.name) {
@@ -34,6 +36,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RankingScreen());
       case settings:
         return MaterialPageRoute(builder: (_) => const SettingsScreen());
+      case shop:
+        return MaterialPageRoute(builder: (_) => const ShopScreen());
       default:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
     }

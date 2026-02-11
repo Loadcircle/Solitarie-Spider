@@ -1,7 +1,7 @@
 # Spider Solitaire - Flutter App
 
 ## Project Overview
-A Spider Solitaire card game built with Flutter, targeting Android (mobile-first). Features 1/2/4 suit difficulty modes, drag & drop card movement, scoring system, and bilingual support (EN/ES).
+Spider Solitaire card game built with Flutter, targeting Android (mobile-first). Features 1/2/4 suit difficulty modes, drag & drop card movement, scoring system, and trilingual support (EN/ES/PT).
 
 ## Architecture
 
@@ -11,7 +11,7 @@ A Spider Solitaire card game built with Flutter, targeting Android (mobile-first
 - `DeckBuilder`, `MoveValidator`, `SequenceDetector`, `Scoring` are pure logic classes
 
 ### State Management
-- **flutter_riverpod** (^2.6.1) with StateNotifier pattern
+- **flutter_riverpod** (^2.6.1) with StateNotifier pattern (not newer Notifier API)
 - `gameProvider` - central game state (nullable, null = no active game)
 - `timerProvider` - separate to avoid unnecessary rebuilds
 - `settingsProvider` - user preferences including locale
@@ -21,19 +21,40 @@ A Spider Solitaire card game built with Flutter, targeting Android (mobile-first
 - `GameState`, `PlayingCard`, etc. use `copyWith` pattern
 - Every game operation returns a new state object
 
-### Card Identity
-- Unique IDs: `"suit_rank_deckIndex"` (needed because 2 decks = duplicate suit+rank combos)
-
 ## Key Directories
 ```
-lib/core/          # Enums, constants, theme
-lib/game/          # Pure Dart game logic (ZERO Flutter imports)
-lib/models/        # Data models
-lib/providers/     # Riverpod providers
-lib/features/      # Screen-based feature folders
-lib/routes/        # Named route definitions
-lib/l10n/          # ARB files + generated localizations
+lib/core/enums/       # Difficulty, Suit, Rank enums
+lib/core/theme/       # AppTheme, GradientBackground
+lib/core/widgets/     # Shared widgets (AppButton)
+lib/game/             # Pure Dart game logic (ZERO Flutter imports)
+lib/models/           # Data models (GameState, SettingsState, PlayingCard)
+lib/providers/        # Riverpod providers
+lib/features/         # Screen-based feature folders
+lib/routes/           # Named route definitions
+lib/l10n/             # ARB files + generated localizations
 ```
+
+## Design System
+
+### Background
+- **All screens** use `GradientBackground` (radial vignette: `#1E5E2A` center → `#0A1A0E` edge)
+- **HomeScreen** has its own identical radial vignette via `Stack` (doesn't use `GradientBackground`)
+- **GameBoardScreen** is excluded — it has its own shop-customizable background system
+
+### Buttons — `AppButton` (`lib/core/widgets/app_button.dart`)
+- Standard button across the entire app. Parameters: `icon?`, `label`, `onPressed`, `isPrimary`
+- **Primary**: green gradient `#4CAF50` → `#2E7D32`, border `#5CAF60`
+- **Secondary**: charcoal gradient `#3A4A3E` → `#2A3530`, border `#4A5A4E`
+- Height 54, borderRadius 14, w600 text, Material ripple
+
+### Dialogs
+- All dialogs use `Dialog` + inner `Container` with gradient background:
+  - `LinearGradient` top→bottom: `#1F3A24` → `#0F1E12`
+  - Border: `#2A4A2E`, borderRadius 20, boxShadow black45
+- Buttons inside dialogs: `AppButton` pairs (primary + secondary)
+
+### AppBar
+- Background: `#0A1A0E` (matches vignette edge for cohesion)
 
 ## Game Rules
 - **Deal**: Columns 1-4 get 6 cards (5 down + 1 up), columns 5-10 get 5 cards (4 down + 1 up)
@@ -52,7 +73,7 @@ lib/l10n/          # ARB files + generated localizations
 
 ## Conventions
 - i18n: All user-facing strings via `AppLocalizations` (lib/l10n/generated/)
-- ARB files: `app_en.arb` (English), `app_es.arb` (Spanish)
-- l10n output: `lib/l10n/generated/` (non-synthetic package)
+- ARB files: `app_en.arb`, `app_es.arb`, `app_pt.arb`
+- l10n config: `output-dir: lib/l10n/generated` in l10n.yaml
 - Navigation: Simple push/pop with named routes (no GoRouter)
-- Theme: Dark theme with green felt background
+- Card IDs: `"suit_rank_deckIndex"` (2 decks = duplicate suit+rank combos)

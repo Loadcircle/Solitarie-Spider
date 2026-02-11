@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
 class GameHud extends StatelessWidget {
@@ -8,12 +9,14 @@ class GameHud extends StatelessWidget {
     required this.moves,
     required this.elapsed,
     required this.completedSequences,
+    this.onPauseTap,
   });
 
   final int score;
   final int moves;
   final Duration elapsed;
   final int completedSequences;
+  final VoidCallback? onPauseTap;
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -27,7 +30,7 @@ class GameHud extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      color: Colors.black38,
+      color: AppTheme.hudBackground,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -35,6 +38,13 @@ class GameHud extends StatelessWidget {
           _buildStat(l10n.moves, '$moves'),
           _buildStat(l10n.time, _formatDuration(elapsed)),
           _buildStat(l10n.sequences, '$completedSequences/8'),
+          if (onPauseTap != null)
+            IconButton(
+              icon: Icon(Icons.pause, color: AppTheme.primaryText),
+              onPressed: onPauseTap,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
         ],
       ),
     );
@@ -46,16 +56,16 @@ class GameHud extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: AppTheme.primaryText,
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white70,
+          style: TextStyle(
+            color: AppTheme.secondaryText,
             fontSize: 10,
           ),
         ),

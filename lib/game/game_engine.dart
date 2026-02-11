@@ -81,6 +81,7 @@ class GameEngine {
       tableau: newTableau,
       moveCount: state.moveCount + 1,
       score: state.score - GameConstants.movePointPenalty,
+      removedSequences: const [],
     );
 
     // Check for completed sequences
@@ -89,12 +90,17 @@ class GameEngine {
     return newState;
   }
 
-  static GameState? dealFromStock(GameState state) {
+  static GameState? dealFromStock(
+    GameState state, {
+    bool allowEmptyColumns = false,
+  }) {
     if (state.stock.isEmpty) return null;
 
-    // All columns must have at least one card
-    for (final column in state.tableau) {
-      if (column.isEmpty) return null;
+    // All columns must have at least one card (unless setting overrides)
+    if (!allowEmptyColumns) {
+      for (final column in state.tableau) {
+        if (column.isEmpty) return null;
+      }
     }
 
     final cardsToDealt = state.stock
@@ -115,6 +121,7 @@ class GameEngine {
     var newState = state.copyWith(
       tableau: newTableau,
       stock: remainingStock,
+      removedSequences: const [],
     );
 
     // Check for completed sequences after dealing
@@ -126,6 +133,9 @@ class GameEngine {
   static GameState _checkAndRemoveSequences(GameState state) {
     var currentState = state;
     var found = true;
+    final allRemoved = <({int column, List<PlayingCard> cards})>[
+      ...state.removedSequences,
+    ];
 
     while (found) {
       found = false;
@@ -134,6 +144,11 @@ class GameEngine {
         final sequenceStart = SequenceDetector.findCompletedSequence(column);
         if (sequenceStart != null) {
           found = true;
+
+          // Save removed cards for animation
+          allRemoved.add(
+            (column: col, cards: column.sublist(sequenceStart)),
+          );
 
           final newColumn = column.sublist(0, sequenceStart);
           final newTableau = [
@@ -164,6 +179,7 @@ class GameEngine {
                 GameConstants.sequenceBonus +
                 (isWon ? GameConstants.winBonus : 0),
             isWon: isWon,
+            removedSequences: allRemoved,
           );
           break; // Restart scanning after removal
         }

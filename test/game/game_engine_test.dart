@@ -81,6 +81,18 @@ void main() {
       final modifiedState = state.copyWith(tableau: tableau);
       expect(GameEngine.dealFromStock(modifiedState), null);
     });
+
+    test('succeeds with empty column when allowEmptyColumns is true', () {
+      final state = GameEngine.createNewGame(Difficulty.oneSuit);
+      // Manually create a state with an empty column
+      final tableau = [...state.tableau.map((c) => [...c])];
+      tableau[0] = [];
+      final modifiedState = state.copyWith(tableau: tableau);
+      final result =
+          GameEngine.dealFromStock(modifiedState, allowEmptyColumns: true);
+      expect(result, isNotNull);
+      expect(result!.stock.length, modifiedState.stock.length - 10);
+    });
   });
 
   group('GameEngine.moveCards', () {

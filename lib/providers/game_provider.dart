@@ -27,9 +27,12 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
   }
 
-  void dealFromStock() {
+  void dealFromStock({bool allowEmptyColumns = false}) {
     if (state == null) return;
-    final newState = GameEngine.dealFromStock(state!);
+    final newState = GameEngine.dealFromStock(
+      state!,
+      allowEmptyColumns: allowEmptyColumns,
+    );
     if (newState != null) {
       state = newState;
     }

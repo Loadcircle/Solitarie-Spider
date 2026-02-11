@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
+import 'app_localizations_pt.dart';
 
 // ignore_for_file: type=lint
 
@@ -96,6 +97,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('es'),
+    Locale('pt'),
   ];
 
   /// No description provided for @appTitle.
@@ -373,6 +375,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'deals'**
   String get deals;
+
+  /// No description provided for @gamePaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Paused'**
+  String get gamePaused;
+
+  /// No description provided for @allowDealWithEmptyColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow deal with empty columns'**
+  String get allowDealWithEmptyColumns;
+
+  /// No description provided for @allowDealWithEmptyColumnsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow dealing even when some columns are empty'**
+  String get allowDealWithEmptyColumnsDescription;
+
+  /// No description provided for @highlightMovable.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight movable cards'**
+  String get highlightMovable;
+
+  /// No description provided for @highlightMovableDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Dim cards that cannot be picked up'**
+  String get highlightMovableDescription;
+
+  /// No description provided for @tapToAutoMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to auto-move'**
+  String get tapToAutoMove;
+
+  /// No description provided for @tapToAutoMoveDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a card to move it to the best column'**
+  String get tapToAutoMoveDescription;
+
+  /// No description provided for @noValidMove.
+  ///
+  /// In en, this message translates to:
+  /// **'No valid move available'**
+  String get noValidMove;
+
+  /// No description provided for @youLose.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Over'**
+  String get youLose;
+
+  /// No description provided for @noMovesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'No more moves available. Better luck next time!'**
+  String get noMovesLeft;
+
+  /// No description provided for @music.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get music;
+
+  /// No description provided for @portuguese.
+  ///
+  /// In en, this message translates to:
+  /// **'Portuguese'**
+  String get portuguese;
+
+  /// No description provided for @chooseLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Language'**
+  String get chooseLanguage;
+
+  /// No description provided for @chooseLanguageMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred language'**
+  String get chooseLanguageMessage;
+
+  /// No description provided for @shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get shop;
+
+  /// No description provided for @backgrounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Backgrounds'**
+  String get backgrounds;
+
+  /// No description provided for @cardBacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Backs'**
+  String get cardBacks;
+
+  /// No description provided for @bgDefaultGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic Green'**
+  String get bgDefaultGreen;
+
+  /// No description provided for @bgDarkEmerald.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Emerald'**
+  String get bgDarkEmerald;
+
+  /// No description provided for @bgImage1.
+  ///
+  /// In en, this message translates to:
+  /// **'Felt Texture'**
+  String get bgImage1;
+
+  /// No description provided for @bgImage2.
+  ///
+  /// In en, this message translates to:
+  /// **'Ornate Felt'**
+  String get bgImage2;
+
+  /// No description provided for @cbDefaultBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic Blue'**
+  String get cbDefaultBlue;
+
+  /// No description provided for @cbDarkRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Red'**
+  String get cbDarkRed;
+
+  /// No description provided for @cbImage1.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Crosshatch'**
+  String get cbImage1;
+
+  /// No description provided for @cbImage2.
+  ///
+  /// In en, this message translates to:
+  /// **'Royal Spade'**
+  String get cbImage2;
+
+  /// No description provided for @selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get selected;
+
+  /// No description provided for @fastestTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest Time'**
+  String get fastestTime;
+
+  /// No description provided for @averageTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Time'**
+  String get averageTime;
+
+  /// No description provided for @longestWinStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest Win Streak'**
+  String get longestWinStreak;
+
+  /// No description provided for @bestScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Score'**
+  String get bestScore;
+
+  /// No description provided for @noStats.
+  ///
+  /// In en, this message translates to:
+  /// **'No stats yet for this mode.'**
+  String get noStats;
+
+  /// No description provided for @noGamesOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No games on this day.'**
+  String get noGamesOnDay;
 }
 
 class _AppLocalizationsDelegate
@@ -386,7 +580,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'es'].contains(locale.languageCode);
+      <String>['en', 'es', 'pt'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -399,6 +593,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'es':
       return AppLocalizationsEs();
+    case 'pt':
+      return AppLocalizationsPt();
   }
 
   throw FlutterError(

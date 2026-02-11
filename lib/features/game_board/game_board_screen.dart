@@ -2,18 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/card_dimensions.dart';
 import '../../core/enums/difficulty.dart';
+import '../../game/move_validator.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/game_result.dart';
 import '../../models/game_state.dart';
+import '../../models/playing_card.dart';
+import '../../models/shop_item.dart';
 import '../../providers/game_provider.dart';
+import '../../models/settings_state.dart';
+import '../../providers/settings_provider.dart';
 import '../../providers/timer_provider.dart';
 import '../../providers/history_provider.dart';
+import '../../core/services/sound_service.dart';
+import '../../providers/sound_service_provider.dart';
 import '../../routes/app_router.dart';
 import 'widgets/tableau_area.dart';
 import 'widgets/stock_pile_widget.dart';
 import 'widgets/completed_area.dart';
+import 'widgets/card_widget.dart';
 import 'widgets/game_hud.dart';
 import 'widgets/win_dialog.dart';
+import 'widgets/lose_dialog.dart';
+import 'widgets/pause_dialog.dart';
+import '../../game/game_over_detector.dart';
+import '../../core/theme/app_theme.dart';
 
 class GameBoardScreen extends ConsumerStatefulWidget {
   const GameBoardScreen({super.key, this.difficulty});
@@ -26,10 +38,34 @@ class GameBoardScreen extends ConsumerStatefulWidget {
 
 class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
   bool _hasShownWinDialog = false;
+  bool _hasShownLoseDialog = false;
+  ({int col, int card})? _shakeTarget;
+
+  // Deal animation
+  final GlobalKey _stockPileKey = GlobalKey();
+  final List<GlobalKey> _columnKeys =
+      List.generate(10, (_) => GlobalKey());
+  bool _isAnimatingDeal = false;
+  OverlayEntry? _dealOverlay;
+
+  // Sequence animation
+  final GlobalKey _completedAreaKey = GlobalKey();
+  bool _isAnimatingSequence = false;
+  OverlayEntry? _sequenceOverlay;
+
+  // Auto-move animation
+  OverlayEntry? _autoMoveOverlay;
+  bool _isAnimatingAutoMove = false;
+  int? _autoMoveHideColumn;
+  int? _autoMoveHideFromIndex;
+
+  // Sound/music
+  late final SoundService _soundService;
 
   @override
   void initState() {
     super.initState();
+    _soundService = ref.read(soundServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initGame();
     });
@@ -44,20 +80,48 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       _hasShownWinDialog = false;
     } else {
       ref.read(timerProvider.notifier).resume();
+      _hasShownLoseDialog = false;
     }
+
+    // Start background music if enabled
+    final settings = ref.read(settingsProvider);
+    if (settings.musicEnabled) {
+      _soundService.startBackgroundMusic();
+    }
+    _soundService.preload();
+  }
+
+  void _playSound(GameSound sound) {
+    if (!ref.read(settingsProvider).soundEnabled) return;
+    ref.read(soundServiceProvider).play(sound);
   }
 
   void _onAcceptDrop(int toColumn, int fromColumn, int fromCardIndex) {
+    final stateBefore = ref.read(gameProvider);
     ref.read(gameProvider.notifier).moveCards(
           fromColumn: fromColumn,
           cardIndex: fromCardIndex,
           toColumn: toColumn,
         );
+    final stateAfter = ref.read(gameProvider);
+    if (stateAfter != null && stateAfter != stateBefore) {
+      // Check if a sequence was completed by this move
+      if (stateBefore != null &&
+          stateAfter.completedSequences > stateBefore.completedSequences) {
+        _playSound(GameSound.sequenceComplete);
+        _triggerSequenceAnimation(stateAfter);
+      } else {
+        _playSound(GameSound.cardMove);
+      }
+    }
   }
 
   void _onDealFromStock() {
+    if (_isAnimatingDeal) return;
+
     final l10n = AppLocalizations.of(context)!;
     final state = ref.read(gameProvider);
+    final settings = ref.read(settingsProvider);
     if (state == null) return;
 
     if (state.stock.isEmpty) {
@@ -67,16 +131,378 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       return;
     }
 
-    // Check all columns have at least one card
-    final hasEmptyColumn = state.tableau.any((col) => col.isEmpty);
-    if (hasEmptyColumn) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.allColumnsMustHaveCards)),
-      );
+    // Check all columns have at least one card (unless setting overrides)
+    if (!settings.allowDealWithEmptyColumns) {
+      final hasEmptyColumn = state.tableau.any((col) => col.isEmpty);
+      if (hasEmptyColumn) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.allColumnsMustHaveCards)),
+        );
+        return;
+      }
+    }
+
+    // Capture stock pile position before dealing
+    final stockBox =
+        _stockPileKey.currentContext?.findRenderObject() as RenderBox?;
+    final stockPos = stockBox?.localToGlobal(Offset.zero);
+    final stockSize = stockBox?.size;
+
+    // Perform the deal
+    ref.read(gameProvider.notifier).dealFromStock(
+          allowEmptyColumns: settings.allowDealWithEmptyColumns,
+        );
+    _playSound(GameSound.cardDeal);
+
+    // Get the dealt cards (last card of each column in new state)
+    final newState = ref.read(gameProvider);
+    if (newState == null || stockPos == null || stockSize == null) return;
+
+    // Check for sequence completion after deal
+    if (newState.removedSequences.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _triggerSequenceAnimation(newState);
+      });
+    }
+
+    final dealtCards = <PlayingCard>[];
+    for (var i = 0; i < 10; i++) {
+      if (newState.tableau[i].isNotEmpty) {
+        dealtCards.add(newState.tableau[i].last);
+      }
+    }
+
+    // Start flying animation
+    setState(() => _isAnimatingDeal = true);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startDealAnimation(stockPos, stockSize, dealtCards);
+    });
+  }
+
+  void _startDealAnimation(
+    Offset stockPos,
+    Size stockSize,
+    List<PlayingCard> dealtCards,
+  ) {
+    // Get target positions from column render boxes
+    final targets = <Offset>[];
+    double? cardWidth;
+
+    for (var i = 0; i < _columnKeys.length; i++) {
+      final colBox =
+          _columnKeys[i].currentContext?.findRenderObject() as RenderBox?;
+      if (colBox != null) {
+        final colPos = colBox.localToGlobal(Offset.zero);
+        cardWidth ??= colBox.size.width;
+        final cHeight = CardDimensions.cardHeight(colBox.size.width);
+        // Target = bottom of column minus card height (where the last card is)
+        final targetY = colPos.dy + colBox.size.height - cHeight;
+        targets.add(Offset(colPos.dx, targetY));
+      } else {
+        targets.add(stockPos);
+      }
+    }
+
+    cardWidth ??= 30.0;
+
+    _dealOverlay = OverlayEntry(
+      builder: (context) => _DealFlyingCards(
+        stockPosition: Offset(
+          stockPos.dx + (stockSize.width - cardWidth!) / 2,
+          stockPos.dy,
+        ),
+        targetPositions: targets,
+        cards: dealtCards,
+        cardWidth: cardWidth,
+        onComplete: () {
+          _dealOverlay?.remove();
+          _dealOverlay = null;
+          if (mounted) {
+            setState(() => _isAnimatingDeal = false);
+          }
+        },
+      ),
+    );
+
+    Overlay.of(context).insert(_dealOverlay!);
+  }
+
+  void _triggerSequenceAnimation(GameState stateAfter) {
+    if (_isAnimatingSequence) return;
+    if (stateAfter.removedSequences.isEmpty) return;
+
+    setState(() => _isAnimatingSequence = true);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startSequenceAnimation(stateAfter);
+    });
+  }
+
+  void _startSequenceAnimation(GameState stateAfter) {
+    // Get completed area target position
+    final completedBox =
+        _completedAreaKey.currentContext?.findRenderObject() as RenderBox?;
+    if (completedBox == null) {
+      setState(() => _isAnimatingSequence = false);
+      return;
+    }
+    final targetPos = completedBox.localToGlobal(Offset.zero);
+
+    // Compute source positions for each removed sequence
+    final allSourcePositions = <List<Offset>>[];
+    final allCards = <List<PlayingCard>>[];
+    double? cardWidth;
+
+    for (final seq in stateAfter.removedSequences) {
+      final colBox =
+          _columnKeys[seq.column].currentContext?.findRenderObject()
+              as RenderBox?;
+      if (colBox == null) continue;
+
+      final colPos = colBox.localToGlobal(Offset.zero);
+      cardWidth ??= colBox.size.width;
+      final cHeight = CardDimensions.cardHeight(colBox.size.width);
+      final faceUpOverlap = CardDimensions.faceUpOverlap(cHeight);
+
+      // Cards were at the bottom of the column before removal
+      // Estimate positions: last card at bottom, going up by overlap
+      final sourcePositions = <Offset>[];
+      for (var i = 0; i < seq.cards.length; i++) {
+        final reversedIndex = seq.cards.length - 1 - i;
+        final y = colPos.dy + colBox.size.height - cHeight -
+            (reversedIndex * faceUpOverlap);
+        sourcePositions.add(Offset(colPos.dx, y));
+      }
+      allSourcePositions.add(sourcePositions);
+      allCards.add(seq.cards);
+    }
+
+    if (allCards.isEmpty || cardWidth == null) {
+      setState(() => _isAnimatingSequence = false);
       return;
     }
 
-    ref.read(gameProvider.notifier).dealFromStock();
+    // Flatten all cards and positions
+    final flatCards = <PlayingCard>[];
+    final flatSources = <Offset>[];
+    for (var i = 0; i < allCards.length; i++) {
+      flatCards.addAll(allCards[i]);
+      flatSources.addAll(allSourcePositions[i]);
+    }
+
+    _sequenceOverlay = OverlayEntry(
+      builder: (context) => _SequenceFlyingCards(
+        sourcePositions: flatSources,
+        targetPosition: targetPos,
+        cards: flatCards,
+        cardWidth: cardWidth!,
+        onComplete: () {
+          _sequenceOverlay?.remove();
+          _sequenceOverlay = null;
+          if (mounted) {
+            setState(() => _isAnimatingSequence = false);
+          }
+        },
+      ),
+    );
+
+    Overlay.of(context).insert(_sequenceOverlay!);
+  }
+
+  @override
+  void dispose() {
+    _dealOverlay?.remove();
+    _dealOverlay = null;
+    _sequenceOverlay?.remove();
+    _sequenceOverlay = null;
+    _autoMoveOverlay?.remove();
+    _autoMoveOverlay = null;
+    _soundService.stopBackgroundMusic();
+    super.dispose();
+  }
+
+  void _onPause() {
+    final gameState = ref.read(gameProvider);
+    if (gameState == null || gameState.isWon) return;
+
+    ref.read(timerProvider.notifier).stop();
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => PauseDialog(
+        onContinue: () {
+          Navigator.of(ctx).pop();
+          ref.read(timerProvider.notifier).resume();
+        },
+        onBackToHome: () {
+          Navigator.of(ctx).pop();
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(AppRouter.home, (route) => false);
+        },
+      ),
+    ).then((_) {
+      // If dialog dismissed via Android back button, resume timer
+      final gameState = ref.read(gameProvider);
+      if (gameState != null && !gameState.isWon) {
+        ref.read(timerProvider.notifier).resume();
+      }
+    });
+  }
+
+  void _onCardTap(int columnIndex, int cardIndex) {
+    final settings = ref.read(settingsProvider);
+    if (!settings.tapToAutoMove) return;
+    if (_isAnimatingAutoMove) return;
+
+    final gameState = ref.read(gameProvider);
+    if (gameState == null || gameState.isWon) return;
+
+    final targetColumn = MoveValidator.findBestTarget(
+      tableau: gameState.tableau,
+      fromColumn: columnIndex,
+      cardIndex: cardIndex,
+    );
+
+    if (targetColumn != null) {
+      // Snapshot source positions before move
+      final cardsToMove = gameState.tableau[columnIndex].sublist(cardIndex);
+      final sourceColBox =
+          _columnKeys[columnIndex].currentContext?.findRenderObject()
+              as RenderBox?;
+
+      final stateBefore = ref.read(gameProvider);
+      ref.read(gameProvider.notifier).moveCards(
+            fromColumn: columnIndex,
+            cardIndex: cardIndex,
+            toColumn: targetColumn,
+          );
+      final stateAfter = ref.read(gameProvider);
+
+      final bool isSequence = stateAfter != null &&
+          stateBefore != null &&
+          stateAfter.completedSequences > stateBefore.completedSequences;
+
+      if (isSequence) {
+        _playSound(GameSound.sequenceComplete);
+        _triggerSequenceAnimation(stateAfter);
+      } else {
+        _playSound(GameSound.cardMove);
+      }
+
+      // Animate flying cards from source to target column
+      if (sourceColBox != null && stateAfter != null) {
+        _startAutoMoveAnimation(
+          sourceColBox: sourceColBox,
+          fromColumn: columnIndex,
+          fromCardIndex: cardIndex,
+          toColumn: targetColumn,
+          cards: cardsToMove,
+          stateBefore: stateBefore!,
+        );
+      }
+    } else {
+      _playSound(GameSound.invalidMove);
+      // Trigger shake animation
+      setState(() {
+        _shakeTarget = (col: columnIndex, card: cardIndex);
+      });
+      Future.delayed(const Duration(milliseconds: 450), () {
+        if (mounted) {
+          setState(() => _shakeTarget = null);
+        }
+      });
+    }
+  }
+
+  void _startAutoMoveAnimation({
+    required RenderBox sourceColBox,
+    required int fromColumn,
+    required int fromCardIndex,
+    required int toColumn,
+    required List<PlayingCard> cards,
+    required GameState stateBefore,
+  }) {
+    final sourceColPos = sourceColBox.localToGlobal(Offset.zero);
+    final cardWidth = sourceColBox.size.width;
+    final cardHeight = CardDimensions.cardHeight(cardWidth);
+    final faceUpOverlap = CardDimensions.faceUpOverlap(cardHeight);
+    final faceDownOverlap = CardDimensions.faceDownOverlap(cardHeight);
+
+    // Compute source Y offset for the card at fromCardIndex
+    double sourceTopOffset = 0;
+    for (var i = 0; i < fromCardIndex; i++) {
+      sourceTopOffset += stateBefore.tableau[fromColumn][i].isFaceUp
+          ? faceUpOverlap
+          : faceDownOverlap;
+    }
+
+    // Source positions for each card in the stack
+    final sourcePositions = <Offset>[];
+    for (var i = 0; i < cards.length; i++) {
+      sourcePositions.add(Offset(
+        sourceColPos.dx,
+        sourceColPos.dy + sourceTopOffset + i * faceUpOverlap,
+      ));
+    }
+
+    // Get target column position after the move
+    final targetColBox =
+        _columnKeys[toColumn].currentContext?.findRenderObject() as RenderBox?;
+    if (targetColBox == null) return;
+
+    final targetColPos = targetColBox.localToGlobal(Offset.zero);
+    // Cards are now at the end of the target column — compute where they sit
+    final stateAfter = ref.read(gameProvider);
+    if (stateAfter == null) return;
+
+    final targetCards = stateAfter.tableau[toColumn];
+    // The moved cards start at targetCards.length - cards.length
+    final moveStartIndex = targetCards.length - cards.length;
+    double targetTopOffset = 0;
+    for (var i = 0; i < moveStartIndex; i++) {
+      targetTopOffset += targetCards[i].isFaceUp
+          ? faceUpOverlap
+          : faceDownOverlap;
+    }
+
+    final targetPositions = <Offset>[];
+    for (var i = 0; i < cards.length; i++) {
+      targetPositions.add(Offset(
+        targetColPos.dx,
+        targetColPos.dy + targetTopOffset + i * faceUpOverlap,
+      ));
+    }
+
+    // Hide moved cards in target column during animation
+    setState(() {
+      _isAnimatingAutoMove = true;
+      _autoMoveHideColumn = toColumn;
+      _autoMoveHideFromIndex = moveStartIndex;
+    });
+
+    _autoMoveOverlay = OverlayEntry(
+      builder: (context) => _AutoMoveFlyingCards(
+        sourcePositions: sourcePositions,
+        targetPositions: targetPositions,
+        cards: cards,
+        cardWidth: cardWidth,
+        onComplete: () {
+          _autoMoveOverlay?.remove();
+          _autoMoveOverlay = null;
+          if (mounted) {
+            setState(() {
+              _isAnimatingAutoMove = false;
+              _autoMoveHideColumn = null;
+              _autoMoveHideFromIndex = null;
+            });
+          }
+        },
+      ),
+    );
+
+    Overlay.of(context).insert(_autoMoveOverlay!);
   }
 
   void _showWinDialog() {
@@ -84,6 +510,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     if (state == null) return;
 
     ref.read(timerProvider.notifier).stop();
+    _playSound(GameSound.win);
 
     // Record game result
     ref.read(historyProvider.notifier).addResult(GameResult(
@@ -119,10 +546,63 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     );
   }
 
+  void _showLoseDialog() {
+    final state = ref.read(gameProvider);
+    if (state == null) return;
+
+    ref.read(timerProvider.notifier).stop();
+    _playSound(GameSound.lose);
+
+    ref.read(historyProvider.notifier).addResult(GameResult(
+          dateTime: DateTime.now(),
+          difficulty: state.difficulty,
+          score: state.score,
+          time: state.elapsed,
+          moves: state.moveCount,
+          isWon: false,
+        ));
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => LoseDialog(
+        score: state.score,
+        moves: state.moveCount,
+        elapsed: state.elapsed,
+        onPlayAgain: () {
+          Navigator.of(ctx).pop();
+          ref
+              .read(gameProvider.notifier)
+              .startNewGame(state.difficulty);
+          ref.read(timerProvider.notifier).start();
+          _hasShownLoseDialog = false;
+        },
+        onBackToHome: () {
+          Navigator.of(ctx).pop();
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(AppRouter.home, (route) => false);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameProvider);
     final elapsed = ref.watch(timerProvider);
+    final settings = ref.watch(settingsProvider);
+
+    // React to music toggle during gameplay
+    ref.listen<bool>(
+      settingsProvider.select((SettingsState s) => s.musicEnabled),
+      (bool? previous, bool next) {
+        if (next) {
+          _soundService.startBackgroundMusic();
+        } else {
+          _soundService.stopBackgroundMusic();
+        }
+      },
+    );
 
     if (gameState == null) {
       return const Scaffold(
@@ -138,6 +618,71 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       });
     }
 
+    // Check for loss
+    if (!gameState.isWon &&
+        !_hasShownLoseDialog &&
+        GameOverDetector.isGameOver(gameState)) {
+      _hasShownLoseDialog = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showLoseDialog();
+      });
+    }
+
+    final BackgroundOption bgOption = settings.selectedBackground;
+    final CardBackOption cbOption = settings.selectedCardBack;
+
+    Widget bodyContent = Column(
+      children: [
+        GameHud(
+          score: gameState.score,
+          moves: gameState.moveCount,
+          elapsed: elapsed,
+          completedSequences: gameState.completedSequences,
+          onPauseTap: gameState.isWon ? null : _onPause,
+        ),
+        _buildInfoBar(gameState, cbOption),
+        Expanded(
+          child: SingleChildScrollView(
+            child: TableauArea(
+              tableau: gameState.tableau,
+              highlightMovable: settings.highlightMovable,
+              onAcceptDrop: _onAcceptDrop,
+              onCardTap: settings.tapToAutoMove ? _onCardTap : null,
+              shakeTarget: _shakeTarget,
+              hideLastCard: _isAnimatingDeal,
+              columnKeys: _columnKeys,
+              hideCardsInColumn: _autoMoveHideColumn,
+              hideCardsFromIndex: _autoMoveHideFromIndex,
+              cardBackOption: cbOption,
+            ),
+          ),
+        ),
+      ],
+    );
+
+    Widget safeBody;
+    if (bgOption.isImage) {
+      safeBody = SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(bgOption.assetPath!, fit: BoxFit.cover),
+            ),
+            bodyContent,
+          ],
+        ),
+      );
+    } else if (bgOption.isGradient) {
+      safeBody = SafeArea(
+        child: Container(
+          decoration: BoxDecoration(gradient: bgOption.gradient),
+          child: bodyContent,
+        ),
+      );
+    } else {
+      safeBody = SafeArea(child: bodyContent);
+    }
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {
@@ -146,60 +691,328 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
         }
       },
       child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              GameHud(
-                score: gameState.score,
-                moves: gameState.moveCount,
-                elapsed: elapsed,
-                completedSequences: gameState.completedSequences,
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: TableauArea(
-                    tableau: gameState.tableau,
-                    onAcceptDrop: _onAcceptDrop,
-                  ),
-                ),
-              ),
-              _buildBottomBar(gameState),
-            ],
-          ),
-        ),
+        backgroundColor: bgOption.isImage ? Colors.black : bgOption.color,
+        body: safeBody,
       ),
     );
   }
 
-  Widget _buildBottomBar(GameState gameState) {
+  Widget _buildInfoBar(GameState gameState, CardBackOption cbOption) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth = CardDimensions.cardWidth(constraints.maxWidth);
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          color: Colors.black26,
+          color: AppTheme.hudBackground,
           child: Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.home, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              const Spacer(),
               CompletedArea(
+                key: _completedAreaKey,
                 completedSequences: gameState.completedSequences,
                 cardWidth: cardWidth,
               ),
               const Spacer(),
               StockPileWidget(
+                key: _stockPileKey,
                 dealsRemaining: gameState.stockDealsRemaining,
                 cardWidth: cardWidth,
                 onTap: _onDealFromStock,
+                cardBackOption: cbOption,
               ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _DealFlyingCards extends StatefulWidget {
+  const _DealFlyingCards({
+    required this.stockPosition,
+    required this.targetPositions,
+    required this.cards,
+    required this.cardWidth,
+    required this.onComplete,
+  });
+
+  final Offset stockPosition;
+  final List<Offset> targetPositions;
+  final List<PlayingCard> cards;
+  final double cardWidth;
+  final VoidCallback onComplete;
+
+  @override
+  State<_DealFlyingCards> createState() => _DealFlyingCardsState();
+}
+
+class _DealFlyingCardsState extends State<_DealFlyingCards>
+    with TickerProviderStateMixin {
+  late final List<AnimationController> _controllers;
+  late final List<Animation<Offset>> _positionAnimations;
+
+  static const _cardDuration = Duration(milliseconds: 350);
+  static const _staggerDelay = Duration(milliseconds: 40);
+
+  @override
+  void initState() {
+    super.initState();
+
+    final int count =
+        widget.cards.length.clamp(0, widget.targetPositions.length);
+
+    _controllers = List.generate(
+      count,
+      (int i) => AnimationController(
+        duration: _cardDuration,
+        vsync: this,
+      ),
+    );
+
+    _positionAnimations = List.generate(count, (int i) {
+      return Tween<Offset>(
+        begin: widget.stockPosition,
+        end: widget.targetPositions[i],
+      ).animate(CurvedAnimation(
+        parent: _controllers[i],
+        curve: Curves.easeOutCubic,
+      ));
+    });
+
+    // Start animations with stagger
+    for (var i = 0; i < count; i++) {
+      Future.delayed(_staggerDelay * i, () {
+        if (mounted) _controllers[i].forward();
+      });
+    }
+
+    // Call onComplete when last animation finishes
+    final totalMs =
+        _cardDuration.inMilliseconds + _staggerDelay.inMilliseconds * (count - 1);
+    Future.delayed(Duration(milliseconds: totalMs + 50), () {
+      if (mounted) widget.onComplete();
+    });
+  }
+
+  @override
+  void dispose() {
+    for (final AnimationController c in _controllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        children: [
+          for (var i = 0; i < _controllers.length; i++)
+            AnimatedBuilder(
+              animation: _controllers[i],
+              builder: (BuildContext context, Widget? child) {
+                return Positioned(
+                  left: _positionAnimations[i].value.dx,
+                  top: _positionAnimations[i].value.dy,
+                  child: child!,
+                );
+              },
+              child:
+                  CardWidget(card: widget.cards[i], cardWidth: widget.cardWidth),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SequenceFlyingCards extends StatefulWidget {
+  const _SequenceFlyingCards({
+    required this.sourcePositions,
+    required this.targetPosition,
+    required this.cards,
+    required this.cardWidth,
+    required this.onComplete,
+  });
+
+  final List<Offset> sourcePositions;
+  final Offset targetPosition;
+  final List<PlayingCard> cards;
+  final double cardWidth;
+  final VoidCallback onComplete;
+
+  @override
+  State<_SequenceFlyingCards> createState() => _SequenceFlyingCardsState();
+}
+
+class _SequenceFlyingCardsState extends State<_SequenceFlyingCards>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final List<Animation<Offset>> _positionAnimations;
+  late final Animation<double> _opacityAnimation;
+
+  static const _duration = Duration(milliseconds: 500);
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: _duration,
+      vsync: this,
+    );
+
+    final count = widget.cards.length.clamp(0, widget.sourcePositions.length);
+
+    _positionAnimations = List.generate(count, (int i) {
+      return Tween<Offset>(
+        begin: widget.sourcePositions[i],
+        end: widget.targetPosition,
+      ).animate(CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+      ));
+    });
+
+    _opacityAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.7, 1.0),
+    ));
+
+    _controller.forward();
+    _controller.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.completed && mounted) {
+        widget.onComplete();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (BuildContext context, Widget? child) {
+          return Stack(
+            children: [
+              for (var i = 0; i < _positionAnimations.length; i++)
+                Positioned(
+                  left: _positionAnimations[i].value.dx,
+                  top: _positionAnimations[i].value.dy,
+                  child: Opacity(
+                    opacity: _opacityAnimation.value,
+                    child: CardWidget(
+                      card: widget.cards[i],
+                      cardWidth: widget.cardWidth,
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _AutoMoveFlyingCards extends StatefulWidget {
+  const _AutoMoveFlyingCards({
+    required this.sourcePositions,
+    required this.targetPositions,
+    required this.cards,
+    required this.cardWidth,
+    required this.onComplete,
+  });
+
+  final List<Offset> sourcePositions;
+  final List<Offset> targetPositions;
+  final List<PlayingCard> cards;
+  final double cardWidth;
+  final VoidCallback onComplete;
+
+  @override
+  State<_AutoMoveFlyingCards> createState() => _AutoMoveFlyingCardsState();
+}
+
+class _AutoMoveFlyingCardsState extends State<_AutoMoveFlyingCards>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final List<Animation<Offset>> _positionAnimations;
+
+  static const _duration = Duration(milliseconds: 250);
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: _duration,
+      vsync: this,
+    );
+
+    final count = widget.cards.length.clamp(
+      0,
+      widget.sourcePositions.length.clamp(0, widget.targetPositions.length),
+    );
+
+    _positionAnimations = List.generate(count, (int i) {
+      return Tween<Offset>(
+        begin: widget.sourcePositions[i],
+        end: widget.targetPositions[i],
+      ).animate(CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+      ));
+    });
+
+    _controller.forward();
+    _controller.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.completed && mounted) {
+        widget.onComplete();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (BuildContext context, Widget? child) {
+          return Stack(
+            children: [
+              for (var i = 0; i < _positionAnimations.length; i++)
+                Positioned(
+                  left: _positionAnimations[i].value.dx,
+                  top: _positionAnimations[i].value.dy,
+                  child: CardWidget(
+                    card: widget.cards[i],
+                    cardWidth: widget.cardWidth,
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

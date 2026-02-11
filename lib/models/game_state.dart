@@ -11,6 +11,7 @@ class GameState {
   final Difficulty difficulty;
   final bool isWon;
   final bool isStarted;
+  final List<({int column, List<PlayingCard> cards})> removedSequences;
 
   const GameState({
     required this.tableau,
@@ -22,6 +23,7 @@ class GameState {
     required this.difficulty,
     this.isWon = false,
     this.isStarted = false,
+    this.removedSequences = const [],
   });
 
   GameState copyWith({
@@ -34,6 +36,7 @@ class GameState {
     Difficulty? difficulty,
     bool? isWon,
     bool? isStarted,
+    List<({int column, List<PlayingCard> cards})>? removedSequences,
   }) {
     return GameState(
       tableau: tableau ?? this.tableau,
@@ -45,6 +48,7 @@ class GameState {
       difficulty: difficulty ?? this.difficulty,
       isWon: isWon ?? this.isWon,
       isStarted: isStarted ?? this.isStarted,
+      removedSequences: removedSequences ?? this.removedSequences,
     );
   }
 

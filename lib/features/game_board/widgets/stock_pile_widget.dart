@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/card_dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../models/shop_item.dart';
 
 class StockPileWidget extends StatelessWidget {
   const StockPileWidget({
@@ -8,11 +9,13 @@ class StockPileWidget extends StatelessWidget {
     required this.dealsRemaining,
     required this.cardWidth,
     required this.onTap,
+    this.cardBackOption,
   });
 
   final int dealsRemaining;
   final double cardWidth;
   final VoidCallback onTap;
+  final CardBackOption? cardBackOption;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +35,11 @@ class StockPileWidget extends StatelessWidget {
       );
     }
 
+    final option = cardBackOption ?? CardBackOption.defaultBlue;
+    final Color backColor = option.color ?? AppTheme.cardBack;
+    final Color patternColor = option.colorPattern ?? AppTheme.cardBackPattern;
+    final bool isImageBack = option.isImage;
+
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
@@ -42,29 +50,66 @@ class StockPileWidget extends StatelessWidget {
             for (var i = 0; i < dealsRemaining && i < 5; i++)
               Positioned(
                 left: i * 3.0,
-                child: Container(
-                  width: cardWidth,
-                  height: cardHeight,
-                  decoration: BoxDecoration(
-                    color: AppTheme.cardBack,
-                    borderRadius:
-                        BorderRadius.circular(CardDimensions.borderRadius),
-                    border:
-                        Border.all(color: AppTheme.cardBackPattern, width: 1),
-                  ),
-                  child: i == dealsRemaining - 1 || i == 4
-                      ? Center(
-                          child: Text(
-                            '$dealsRemaining',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: cardWidth * 0.35,
-                              fontWeight: FontWeight.bold,
-                            ),
+                child: isImageBack
+                    ? Container(
+                        width: cardWidth,
+                        height: cardHeight,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                              CardDimensions.borderRadius),
+                          border: Border.all(color: Colors.white24, width: 1),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                              CardDimensions.borderRadius - 1),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.asset(option.assetPath!,
+                                  fit: BoxFit.fill),
+                              if (i == dealsRemaining - 1 || i == 4)
+                                Center(
+                                  child: Text(
+                                    '$dealsRemaining',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: cardWidth * 0.35,
+                                      fontWeight: FontWeight.bold,
+                                      shadows: const [
+                                        Shadow(
+                                          blurRadius: 4,
+                                          color: Colors.black,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                        )
-                      : null,
-                ),
+                        ),
+                      )
+                    : Container(
+                        width: cardWidth,
+                        height: cardHeight,
+                        decoration: BoxDecoration(
+                          color: backColor,
+                          borderRadius: BorderRadius.circular(
+                              CardDimensions.borderRadius),
+                          border: Border.all(color: patternColor, width: 1),
+                        ),
+                        child: i == dealsRemaining - 1 || i == 4
+                            ? Center(
+                                child: Text(
+                                  '$dealsRemaining',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: cardWidth * 0.35,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
               ),
           ],
         ),

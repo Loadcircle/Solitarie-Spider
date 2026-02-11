@@ -153,4 +153,105 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deals => 'repartos';
+
+  @override
+  String get gamePaused => 'Juego Pausado';
+
+  @override
+  String get allowDealWithEmptyColumns =>
+      'Permitir reparto con columnas vacías';
+
+  @override
+  String get allowDealWithEmptyColumnsDescription =>
+      'Permitir repartir incluso cuando hay columnas vacías';
+
+  @override
+  String get highlightMovable => 'Resaltar cartas movibles';
+
+  @override
+  String get highlightMovableDescription =>
+      'Atenuar cartas que no se pueden mover';
+
+  @override
+  String get tapToAutoMove => 'Tocar para mover automáticamente';
+
+  @override
+  String get tapToAutoMoveDescription =>
+      'Tocar una carta para moverla a la mejor columna';
+
+  @override
+  String get noValidMove => 'No hay movimiento válido disponible';
+
+  @override
+  String get youLose => 'Fin del Juego';
+
+  @override
+  String get noMovesLeft =>
+      'No quedan movimientos disponibles. ¡Mejor suerte la próxima vez!';
+
+  @override
+  String get music => 'Música';
+
+  @override
+  String get portuguese => 'Portugués';
+
+  @override
+  String get chooseLanguage => 'Elegir Idioma';
+
+  @override
+  String get chooseLanguageMessage => 'Selecciona tu idioma preferido';
+
+  @override
+  String get shop => 'Tienda';
+
+  @override
+  String get backgrounds => 'Fondos';
+
+  @override
+  String get cardBacks => 'Dorsos';
+
+  @override
+  String get bgDefaultGreen => 'Verde Clásico';
+
+  @override
+  String get bgDarkEmerald => 'Esmeralda Oscuro';
+
+  @override
+  String get bgImage1 => 'Textura Fieltro';
+
+  @override
+  String get bgImage2 => 'Fieltro Ornamentado';
+
+  @override
+  String get cbDefaultBlue => 'Azul Clásico';
+
+  @override
+  String get cbDarkRed => 'Rojo Oscuro';
+
+  @override
+  String get cbImage1 => 'Rojo Entrecruzado';
+
+  @override
+  String get cbImage2 => 'Pica Real';
+
+  @override
+  String get selected => 'Seleccionado';
+
+  @override
+  String get fastestTime => 'Tiempo Más Rápido';
+
+  @override
+  String get averageTime => 'Tiempo Promedio';
+
+  @override
+  String get longestWinStreak => 'Racha Más Larga';
+
+  @override
+  String get bestScore => 'Mejor Puntuación';
+
+  @override
+  String get noStats => 'Sin estadísticas para este modo.';
+
+  @override
+  String get noGamesOnDay => 'No hay partidas en este día.';
 }

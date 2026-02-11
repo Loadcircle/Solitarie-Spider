@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
 class WinDialog extends StatelessWidget {
@@ -27,38 +29,78 @@ class WinDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return AlertDialog(
-      title: Text(
-        l10n.youWin,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('🏆', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 16),
-          Text(l10n.congratulations, textAlign: TextAlign.center),
-          const SizedBox(height: 16),
-          Text(
-            l10n.finalScore(score),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF1F3A24), Color(0xFF0F1E12)],
           ),
-          const SizedBox(height: 8),
-          Text(l10n.totalMoves(moves)),
-          Text(l10n.totalTime(_formatDuration(elapsed))),
-        ],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF2A4A2E)),
+          boxShadow: const [
+            BoxShadow(
+                color: Colors.black45, blurRadius: 12, offset: Offset(0, 4)),
+          ],
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.youWin,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryText,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text('🏆', style: TextStyle(fontSize: 64)),
+            const SizedBox(height: 12),
+            Text(
+              l10n.congratulations,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppTheme.secondaryText),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.finalScore(score),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryText,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.totalMoves(moves),
+              style: TextStyle(color: AppTheme.secondaryText),
+            ),
+            Text(
+              l10n.totalTime(_formatDuration(elapsed)),
+              style: TextStyle(color: AppTheme.secondaryText),
+            ),
+            const SizedBox(height: 24),
+            AppButton(
+              icon: Icons.replay,
+              label: l10n.playAgain,
+              onPressed: onPlayAgain,
+              isPrimary: true,
+            ),
+            const SizedBox(height: 10),
+            AppButton(
+              icon: Icons.home,
+              label: l10n.backToHome,
+              onPressed: onBackToHome,
+              isPrimary: false,
+            ),
+          ],
+        ),
       ),
-      actions: [
-        TextButton(
-          onPressed: onBackToHome,
-          child: Text(l10n.backToHome),
-        ),
-        ElevatedButton(
-          onPressed: onPlayAgain,
-          child: Text(l10n.playAgain),
-        ),
-      ],
     );
   }
 }

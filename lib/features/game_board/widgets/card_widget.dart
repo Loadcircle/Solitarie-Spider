@@ -18,7 +18,7 @@ class CardWidget extends StatelessWidget {
     final cardHeight = CardDimensions.cardHeight(cardWidth);
     final isRed = card.suit.isRed;
     final color = isRed ? AppTheme.redSuit : AppTheme.blackSuit;
-    final fontSize = cardWidth * 0.28;
+    final fontSize = cardWidth * 0.34;
 
     return Container(
       width: cardWidth,
