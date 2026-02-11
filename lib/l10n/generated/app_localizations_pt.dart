@@ -199,7 +199,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get chooseLanguageMessage => 'Selecione seu idioma preferido';
 
   @override
-  String get shop => 'Loja';
+  String get shop => 'Aparência';
 
   @override
   String get backgrounds => 'Fundos';

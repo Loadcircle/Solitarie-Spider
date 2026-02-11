@@ -59,6 +59,61 @@ flutter gen-l10n
 dart run flutter_launcher_icons
 ```
 
+## Changing Texts (i18n)
+
+All user-facing strings are localized in 3 ARB files inside `lib/l10n/`:
+
+| File | Language |
+|------|----------|
+| `app_en.arb` | English |
+| `app_es.arb` | Spanish |
+| `app_pt.arb` | Portuguese |
+
+Each ARB is a JSON with `"key": "text"` pairs. The key is the same across all 3 files, only the text changes.
+
+**To change an existing text:**
+
+1. Find the key in the 3 ARB files and update the text:
+   ```json
+   // app_en.arb
+   "shop": "Appearance"
+   // app_es.arb
+   "shop": "Apariencia"
+   // app_pt.arb
+   "shop": "Aparência"
+   ```
+2. Run `flutter gen-l10n` to regenerate the Dart classes.
+3. Done. No Dart code changes needed if the key stays the same.
+
+**To add a new text:**
+
+1. Add the same key with its translation to all 3 ARB files:
+   ```json
+   "myNewKey": "Hello"        // app_en.arb
+   "myNewKey": "Hola"         // app_es.arb
+   "myNewKey": "Olá"          // app_pt.arb
+   ```
+2. Run `flutter gen-l10n`.
+3. Use it in Dart code:
+   ```dart
+   final l10n = AppLocalizations.of(context)!;
+   Text(l10n.myNewKey)
+   ```
+
+**To add a text with parameters:**
+
+1. Use `{paramName}` in the text and add a `@key` metadata entry:
+   ```json
+   "greeting": "Hello {name}!",
+   "@greeting": {
+     "placeholders": {
+       "name": { "type": "String" }
+     }
+   }
+   ```
+2. Run `flutter gen-l10n`.
+3. Use in Dart: `l10n.greeting('World')`.
+
 ## Build APK
 
 ```bash

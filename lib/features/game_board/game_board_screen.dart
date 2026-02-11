@@ -271,15 +271,20 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       cardWidth ??= colBox.size.width;
       final cHeight = CardDimensions.cardHeight(colBox.size.width);
       final faceUpOverlap = CardDimensions.faceUpOverlap(cHeight);
+      final faceDownOverlap = CardDimensions.faceDownOverlap(cHeight);
 
-      // Cards were at the bottom of the column before removal
-      // Estimate positions: last card at bottom, going up by overlap
+      // Column has already shrunk (sequence removed). Compute where the
+      // removed cards WERE by walking from top using remaining cards as offset.
+      final remainingCards = stateAfter.tableau[seq.column];
+      double seqStartY = colPos.dy;
+      for (final PlayingCard c in remainingCards) {
+        seqStartY += c.isFaceUp ? faceUpOverlap : faceDownOverlap;
+      }
+
+      // Each removed card (all face-up) was stacked with faceUpOverlap
       final sourcePositions = <Offset>[];
       for (var i = 0; i < seq.cards.length; i++) {
-        final reversedIndex = seq.cards.length - 1 - i;
-        final y = colPos.dy + colBox.size.height - cHeight -
-            (reversedIndex * faceUpOverlap);
-        sourcePositions.add(Offset(colPos.dx, y));
+        sourcePositions.add(Offset(colPos.dx, seqStartY + i * faceUpOverlap));
       }
       allSourcePositions.add(sourcePositions);
       allCards.add(seq.cards);
@@ -877,44 +882,80 @@ class _SequenceFlyingCards extends StatefulWidget {
 }
 
 class _SequenceFlyingCardsState extends State<_SequenceFlyingCards>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final List<Animation<Offset>> _positionAnimations;
-  late final Animation<double> _opacityAnimation;
+    with TickerProviderStateMixin {
+  // Phase 1: collapse cards into a stack
+  late final AnimationController _collapseController;
+  late final List<Animation<Offset>> _collapseAnimations;
 
-  static const _duration = Duration(milliseconds: 500);
+  // Phase 2: fly the stack to the target slot
+  late final AnimationController _flyController;
+  late final Animation<Offset> _flyAnimation;
+  late final Animation<double> _scaleAnimation;
+
+  static const _collapseDuration = Duration(milliseconds: 350);
+  static const _flyDuration = Duration(milliseconds: 400);
+
+  late final int _count;
+  late final Offset _collapseTarget;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      duration: _duration,
+    _count = widget.cards.length.clamp(0, widget.sourcePositions.length);
+
+    // All cards collapse upward to the position of the first card (K)
+    _collapseTarget = _count > 0
+        ? widget.sourcePositions[0]
+        : widget.targetPosition;
+
+    // Phase 1: each card animates to the collapse point
+    _collapseController = AnimationController(
+      duration: _collapseDuration,
       vsync: this,
     );
 
-    final count = widget.cards.length.clamp(0, widget.sourcePositions.length);
-
-    _positionAnimations = List.generate(count, (int i) {
+    _collapseAnimations = List.generate(_count, (int i) {
       return Tween<Offset>(
         begin: widget.sourcePositions[i],
-        end: widget.targetPosition,
+        end: _collapseTarget,
       ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic,
+        parent: _collapseController,
+        curve: Curves.easeInOutCubic,
       ));
     });
 
-    _opacityAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
+    // Phase 2: collapsed stack flies to target slot
+    _flyController = AnimationController(
+      duration: _flyDuration,
+      vsync: this,
+    );
+
+    _flyAnimation = Tween<Offset>(
+      begin: _collapseTarget,
+      end: widget.targetPosition,
     ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.7, 1.0),
+      parent: _flyController,
+      curve: Curves.easeInOutCubic,
     ));
 
-    _controller.forward();
-    _controller.addStatusListener((AnimationStatus status) {
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.85,
+    ).animate(CurvedAnimation(
+      parent: _flyController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Chain: collapse → fly
+    _collapseController.forward();
+    _collapseController.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.completed && mounted) {
+        _flyController.forward();
+      }
+    });
+
+    _flyController.addStatusListener((AnimationStatus status) {
       if (status == AnimationStatus.completed && mounted) {
         widget.onComplete();
       }
@@ -923,7 +964,8 @@ class _SequenceFlyingCardsState extends State<_SequenceFlyingCards>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _collapseController.dispose();
+    _flyController.dispose();
     super.dispose();
   }
 
@@ -932,20 +974,40 @@ class _SequenceFlyingCardsState extends State<_SequenceFlyingCards>
     return Material(
       type: MaterialType.transparency,
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: Listenable.merge([_collapseController, _flyController]),
         builder: (BuildContext context, Widget? child) {
-          return Stack(
-            children: [
-              for (var i = 0; i < _positionAnimations.length; i++)
+          final bool isFlying = _collapseController.isCompleted;
+
+          if (isFlying) {
+            // Phase 2: show the K card flying to target slot
+            return Stack(
+              children: [
                 Positioned(
-                  left: _positionAnimations[i].value.dx,
-                  top: _positionAnimations[i].value.dy,
-                  child: Opacity(
-                    opacity: _opacityAnimation.value,
+                  left: _flyAnimation.value.dx,
+                  top: _flyAnimation.value.dy,
+                  child: Transform.scale(
+                    scale: _scaleAnimation.value,
+                    alignment: Alignment.topLeft,
                     child: CardWidget(
-                      card: widget.cards[i],
+                      card: widget.cards.first,
                       cardWidth: widget.cardWidth,
                     ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // Phase 1: all cards collapsing
+          return Stack(
+            children: [
+              for (var i = 0; i < _count; i++)
+                Positioned(
+                  left: _collapseAnimations[i].value.dx,
+                  top: _collapseAnimations[i].value.dy,
+                  child: CardWidget(
+                    card: widget.cards[i],
+                    cardWidth: widget.cardWidth,
                   ),
                 ),
             ],

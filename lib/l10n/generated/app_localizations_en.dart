@@ -197,7 +197,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseLanguageMessage => 'Select your preferred language';
 
   @override
-  String get shop => 'Shop';
+  String get shop => 'Appearance';
 
   @override
   String get backgrounds => 'Backgrounds';

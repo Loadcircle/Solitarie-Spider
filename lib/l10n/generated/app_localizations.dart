@@ -457,7 +457,7 @@ abstract class AppLocalizations {
   /// No description provided for @shop.
   ///
   /// In en, this message translates to:
-  /// **'Shop'**
+  /// **'Appearance'**
   String get shop;
 
   /// No description provided for @backgrounds.
