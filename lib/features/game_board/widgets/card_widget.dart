@@ -18,7 +18,8 @@ class CardWidget extends StatelessWidget {
     final cardHeight = CardDimensions.cardHeight(cardWidth);
     final isRed = card.suit.isRed;
     final color = isRed ? AppTheme.redSuit : AppTheme.blackSuit;
-    final fontSize = cardWidth * 0.34;
+    final rankFontSize = cardWidth * 0.45;
+    final suitFontSize = cardWidth * 0.35;
 
     return Container(
       width: cardWidth,
@@ -40,22 +41,33 @@ class CardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              card.rank.symbol,
-              style: TextStyle(
-                color: color,
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                height: 1.0,
-              ),
-            ),
-            Text(
-              card.suit.symbol,
-              style: TextStyle(
-                color: color,
-                fontSize: fontSize * 0.8,
-                height: 1.0,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      card.rank.symbol,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: rankFontSize,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  card.suit.symbol,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: suitFontSize,
+                    height: 1.0,
+                  ),
+                ),
+              ],
             ),
             const Spacer(),
             Align(
@@ -64,7 +76,7 @@ class CardWidget extends StatelessWidget {
                 card.suit.symbol,
                 style: TextStyle(
                   color: color,
-                  fontSize: fontSize * 1.8,
+                  fontSize: rankFontSize * 1.8,
                   height: 1.0,
                 ),
               ),

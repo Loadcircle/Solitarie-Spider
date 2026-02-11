@@ -121,9 +121,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sound => 'Sound';
 
   @override
-  String get animations => 'Animations';
-
-  @override
   String get defaultDifficulty => 'Default Difficulty';
 
   @override

@@ -211,14 +211,6 @@ class SettingsScreen extends ConsumerWidget {
             ),
             SwitchListTile(
               title: Text(
-                l10n.animations,
-                style: TextStyle(color: AppTheme.primaryText),
-              ),
-              value: settings.animationsEnabled,
-              onChanged: (_) => notifier.toggleAnimations(),
-            ),
-            SwitchListTile(
-              title: Text(
                 l10n.confirmBeforeNewGame,
                 style: TextStyle(color: AppTheme.primaryText),
               ),

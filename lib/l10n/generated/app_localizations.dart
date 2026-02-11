@@ -310,12 +310,6 @@ abstract class AppLocalizations {
   /// **'Sound'**
   String get sound;
 
-  /// No description provided for @animations.
-  ///
-  /// In en, this message translates to:
-  /// **'Animations'**
-  String get animations;
-
   /// No description provided for @defaultDifficulty.
   ///
   /// In en, this message translates to:

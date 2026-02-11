@@ -40,16 +40,18 @@ class StockPileWidget extends StatelessWidget {
     final Color patternColor = option.colorPattern ?? AppTheme.cardBackPattern;
     final bool isImageBack = option.isImage;
 
+    final offset = cardWidth * 0.5;
+
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: cardWidth + (dealsRemaining - 1) * 3.0,
+        width: cardWidth + (dealsRemaining - 1) * offset,
         height: cardHeight,
         child: Stack(
           children: [
             for (var i = 0; i < dealsRemaining && i < 5; i++)
               Positioned(
-                left: i * 3.0,
+                left: i * offset,
                 child: isImageBack
                     ? Container(
                         width: cardWidth,

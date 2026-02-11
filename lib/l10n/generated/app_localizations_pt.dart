@@ -121,9 +121,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get sound => 'Som';
 
   @override
-  String get animations => 'Animações';
-
-  @override
   String get defaultDifficulty => 'Dificuldade Padrão';
 
   @override

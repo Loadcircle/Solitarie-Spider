@@ -11,7 +11,8 @@
       "Bash(dart run:*)",
       "Bash(flutter pub get:*)",
       "Bash(copy:*)",
-      "Bash(if not exist \"D:\\\\Trabajo\\\\Programas\\\\my_solitarie\\\\my_solitarie\\\\assets\\\\images\\\\backgrounds\" mkdir \"D:\\\\Trabajo\\\\Programas\\\\my_solitarie\\\\my_solitarie\\\\assets\\\\images\\\\backgrounds\")"
+      "Bash(if not exist \"D:\\\\Trabajo\\\\Programas\\\\my_solitarie\\\\my_solitarie\\\\assets\\\\images\\\\backgrounds\" mkdir \"D:\\\\Trabajo\\\\Programas\\\\my_solitarie\\\\my_solitarie\\\\assets\\\\images\\\\backgrounds\")",
+      "Bash(find:*)"
     ]
   }
 }

@@ -58,7 +58,7 @@ class GameHud extends StatelessWidget {
           value,
           style: TextStyle(
             color: AppTheme.primaryText,
-            fontSize: 16,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -66,7 +66,7 @@ class GameHud extends StatelessWidget {
           label,
           style: TextStyle(
             color: AppTheme.secondaryText,
-            fontSize: 10,
+            fontSize: 12,
           ),
         ),
       ],

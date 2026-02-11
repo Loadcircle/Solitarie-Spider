@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-enum BackgroundOption { defaultGreen, darkEmerald, image1, image2 }
+enum BackgroundOption { image1, image2, defaultGreen, darkEmerald }
 
-enum CardBackOption { defaultBlue, darkRed, image1, image2 }
+enum CardBackOption { image1, image2, defaultBlue, darkRed }
 
 extension BackgroundOptionExt on BackgroundOption {
   String get displayNameKey {

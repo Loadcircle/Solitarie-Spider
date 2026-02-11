@@ -39,6 +39,7 @@ class GameBoardScreen extends ConsumerStatefulWidget {
 class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
   bool _hasShownWinDialog = false;
   bool _hasShownLoseDialog = false;
+  bool _initialized = false;
   ({int col, int card})? _shakeTarget;
 
   // Deal animation
@@ -50,6 +51,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
 
   // Sequence animation
   final GlobalKey _completedAreaKey = GlobalKey();
+  final List<GlobalKey> _slotKeys = List.generate(8, (_) => GlobalKey());
   bool _isAnimatingSequence = false;
   OverlayEntry? _sequenceOverlay;
 
@@ -83,6 +85,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       _hasShownLoseDialog = false;
     }
 
+    setState(() => _initialized = true);
+
     // Start background music if enabled
     final settings = ref.read(settingsProvider);
     if (settings.musicEnabled) {
@@ -109,7 +113,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       if (stateBefore != null &&
           stateAfter.completedSequences > stateBefore.completedSequences) {
         _playSound(GameSound.sequenceComplete);
-        _triggerSequenceAnimation(stateAfter);
+        _triggerSequenceAnimation(stateAfter, stateBefore.completedSequences);
       } else {
         _playSound(GameSound.cardMove);
       }
@@ -160,8 +164,9 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
 
     // Check for sequence completion after deal
     if (newState.removedSequences.isNotEmpty) {
+      final prevCompleted = state.completedSequences;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _triggerSequenceAnimation(newState);
+        _triggerSequenceAnimation(newState, prevCompleted);
       });
     }
 
@@ -209,7 +214,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     _dealOverlay = OverlayEntry(
       builder: (context) => _DealFlyingCards(
         stockPosition: Offset(
-          stockPos.dx + (stockSize.width - cardWidth!) / 2,
+          stockPos.dx + stockSize.width - cardWidth!,
           stockPos.dy,
         ),
         targetPositions: targets,
@@ -228,26 +233,28 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     Overlay.of(context).insert(_dealOverlay!);
   }
 
-  void _triggerSequenceAnimation(GameState stateAfter) {
+  void _triggerSequenceAnimation(GameState stateAfter, int prevCompleted) {
     if (_isAnimatingSequence) return;
     if (stateAfter.removedSequences.isEmpty) return;
 
     setState(() => _isAnimatingSequence = true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startSequenceAnimation(stateAfter);
+      _startSequenceAnimation(stateAfter, prevCompleted);
     });
   }
 
-  void _startSequenceAnimation(GameState stateAfter) {
-    // Get completed area target position
-    final completedBox =
-        _completedAreaKey.currentContext?.findRenderObject() as RenderBox?;
-    if (completedBox == null) {
+  void _startSequenceAnimation(GameState stateAfter, int prevCompleted) {
+    // Determine target slot index (first new slot that was just filled)
+    final targetSlotIndex = prevCompleted.clamp(0, 7);
+    final slotBox =
+        _slotKeys[targetSlotIndex].currentContext?.findRenderObject()
+            as RenderBox?;
+    if (slotBox == null) {
       setState(() => _isAnimatingSequence = false);
       return;
     }
-    final targetPos = completedBox.localToGlobal(Offset.zero);
+    final targetPos = slotBox.localToGlobal(Offset.zero);
 
     // Compute source positions for each removed sequence
     final allSourcePositions = <List<Offset>>[];
@@ -322,6 +329,19 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     super.dispose();
   }
 
+  void _recordAbandon() {
+    final state = ref.read(gameProvider);
+    if (state == null || !state.isStarted || state.isWon) return;
+    ref.read(historyProvider.notifier).addResult(GameResult(
+          dateTime: DateTime.now(),
+          difficulty: state.difficulty,
+          score: state.score,
+          time: state.elapsed,
+          moves: state.moveCount,
+          isWon: false,
+        ));
+  }
+
   void _onPause() {
     final gameState = ref.read(gameProvider);
     if (gameState == null || gameState.isWon) return;
@@ -337,6 +357,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
           ref.read(timerProvider.notifier).resume();
         },
         onBackToHome: () {
+          _recordAbandon();
           Navigator.of(ctx).pop();
           Navigator.of(context)
               .pushNamedAndRemoveUntil(AppRouter.home, (route) => false);
@@ -386,7 +407,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
 
       if (isSequence) {
         _playSound(GameSound.sequenceComplete);
-        _triggerSequenceAnimation(stateAfter);
+        _triggerSequenceAnimation(stateAfter, stateBefore.completedSequences);
       } else {
         _playSound(GameSound.cardMove);
       }
@@ -610,8 +631,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       );
     }
 
-    // Check for win
-    if (gameState.isWon && !_hasShownWinDialog) {
+    // Check for win (only after _initGame has run)
+    if (_initialized && gameState.isWon && !_hasShownWinDialog) {
       _hasShownWinDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showWinDialog();
@@ -619,7 +640,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     }
 
     // Check for loss
-    if (!gameState.isWon &&
+    if (_initialized &&
+        !gameState.isWon &&
         !_hasShownLoseDialog &&
         GameOverDetector.isGameOver(gameState)) {
       _hasShownLoseDialog = true;
@@ -631,33 +653,44 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     final BackgroundOption bgOption = settings.selectedBackground;
     final CardBackOption cbOption = settings.selectedCardBack;
 
-    Widget bodyContent = Column(
-      children: [
-        GameHud(
-          score: gameState.score,
-          moves: gameState.moveCount,
-          elapsed: elapsed,
-          completedSequences: gameState.completedSequences,
-          onPauseTap: gameState.isWon ? null : _onPause,
-        ),
-        _buildInfoBar(gameState, cbOption),
-        Expanded(
-          child: SingleChildScrollView(
-            child: TableauArea(
-              tableau: gameState.tableau,
-              highlightMovable: settings.highlightMovable,
-              onAcceptDrop: _onAcceptDrop,
-              onCardTap: settings.tapToAutoMove ? _onCardTap : null,
-              shakeTarget: _shakeTarget,
-              hideLastCard: _isAnimatingDeal,
-              columnKeys: _columnKeys,
-              hideCardsInColumn: _autoMoveHideColumn,
-              hideCardsFromIndex: _autoMoveHideFromIndex,
-              cardBackOption: cbOption,
+    Widget bodyContent = LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = CardDimensions.cardWidth(constraints.maxWidth);
+        return Column(
+          children: [
+            GameHud(
+              score: gameState.score,
+              moves: gameState.moveCount,
+              elapsed: elapsed,
+              completedSequences: gameState.completedSequences,
+              onPauseTap: gameState.isWon ? null : _onPause,
             ),
-          ),
-        ),
-      ],
+            _buildInfoBar(gameState, cbOption),
+            Expanded(
+              child: SingleChildScrollView(
+                child: TableauArea(
+                  tableau: gameState.tableau,
+                  highlightMovable: settings.highlightMovable,
+                  onAcceptDrop: _onAcceptDrop,
+                  onCardTap: settings.tapToAutoMove ? _onCardTap : null,
+                  shakeTarget: _shakeTarget,
+                  hideLastCard: _isAnimatingDeal,
+                  columnKeys: _columnKeys,
+                  hideCardsInColumn: _autoMoveHideColumn,
+                  hideCardsFromIndex: _autoMoveHideFromIndex,
+                  cardBackOption: cbOption,
+                ),
+              ),
+            ),
+            CompletedArea(
+              key: _completedAreaKey,
+              completedSequences: gameState.completedSequences,
+              cardWidth: cardWidth,
+              slotKeys: _slotKeys,
+            ),
+          ],
+        );
+      },
     );
 
     Widget safeBody;
@@ -687,6 +720,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
+          _recordAbandon();
           ref.read(timerProvider.notifier).stop();
         }
       },
@@ -706,13 +740,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           color: AppTheme.hudBackground,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              CompletedArea(
-                key: _completedAreaKey,
-                completedSequences: gameState.completedSequences,
-                cardWidth: cardWidth,
-              ),
-              const Spacer(),
               StockPileWidget(
                 key: _stockPileKey,
                 dealsRemaining: gameState.stockDealsRemaining,

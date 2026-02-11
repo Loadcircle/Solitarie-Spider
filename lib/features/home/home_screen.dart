@@ -4,7 +4,10 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_button.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../routes/app_router.dart';
+import '../../models/game_result.dart';
+import '../../models/settings_state.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/history_provider.dart';
 import '../../providers/settings_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -18,21 +21,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _hasShownLanguageDialog = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _maybeShowLanguagePicker();
-  }
-
-  void _maybeShowLanguagePicker() {
-    if (_hasShownLanguageDialog) return;
-    final settings = ref.read(settingsProvider);
-    if (settings.hasSelectedLanguage) return;
-
-    _hasShownLanguageDialog = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _showLanguagePickerDialog();
-    });
+  void initState() {
+    super.initState();
+    // Listen for settings to finish loading, then show language picker if needed
+    ref.listenManual(settingsProvider, (SettingsState? previous, SettingsState next) {
+      if (next.isLoading || next.hasSelectedLanguage) return;
+      if (_hasShownLanguageDialog) return;
+      _hasShownLanguageDialog = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _showLanguagePickerDialog();
+      });
+    }, fireImmediately: true);
   }
 
   void _showLanguagePickerDialog() {
@@ -150,6 +150,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   icon: Icons.add,
                   label: l10n.confirm,
                   onPressed: () {
+                    // Record abandon for the active game
+                    final gs = ref.read(gameProvider);
+                    if (gs != null && gs.isStarted && !gs.isWon) {
+                      ref.read(historyProvider.notifier).addResult(GameResult(
+                            dateTime: DateTime.now(),
+                            difficulty: gs.difficulty,
+                            score: gs.score,
+                            time: gs.elapsed,
+                            moves: gs.moveCount,
+                            isWon: false,
+                          ));
+                    }
                     Navigator.of(ctx).pop();
                     Navigator.pushNamed(context, AppRouter.newGame);
                   },

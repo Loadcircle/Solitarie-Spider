@@ -22,19 +22,19 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     final bgName = prefs.getString(_keyBackground);
     final cbName = prefs.getString(_keyCardBack);
 
-    BackgroundOption bg = BackgroundOption.defaultGreen;
+    BackgroundOption bg = BackgroundOption.image1;
     if (bgName != null) {
       bg = BackgroundOption.values.firstWhere(
         (BackgroundOption e) => e.name == bgName,
-        orElse: () => BackgroundOption.defaultGreen,
+        orElse: () => BackgroundOption.image1,
       );
     }
 
-    CardBackOption cb = CardBackOption.defaultBlue;
+    CardBackOption cb = CardBackOption.image1;
     if (cbName != null) {
       cb = CardBackOption.values.firstWhere(
         (CardBackOption e) => e.name == cbName,
-        orElse: () => CardBackOption.defaultBlue,
+        orElse: () => CardBackOption.image1,
       );
     }
 
@@ -43,6 +43,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       locale: hasSelected && localeCode != null ? Locale(localeCode) : null,
       selectedBackground: bg,
       selectedCardBack: cb,
+      isLoading: false,
     );
   }
 
@@ -64,10 +65,6 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   void toggleSound() {
     state = state.copyWith(soundEnabled: !state.soundEnabled);
-  }
-
-  void toggleAnimations() {
-    state = state.copyWith(animationsEnabled: !state.animationsEnabled);
   }
 
   void toggleConfirmNewGame() {
