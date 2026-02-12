@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/constants/shop_registry.dart';
 import '../core/enums/difficulty.dart';
 import '../models/settings_state.dart';
 import '../models/shop_item.dart';
@@ -14,6 +15,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _keyLocale = 'locale';
   static const _keyBackground = 'selectedBackground';
   static const _keyCardBack = 'selectedCardBack';
+  static const _keyFigure = 'selectedFigure';
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -21,28 +23,26 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     final localeCode = prefs.getString(_keyLocale);
     final bgName = prefs.getString(_keyBackground);
     final cbName = prefs.getString(_keyCardBack);
+    final figName = prefs.getString(_keyFigure);
 
-    BackgroundOption bg = BackgroundOption.image1;
-    if (bgName != null) {
-      bg = BackgroundOption.values.firstWhere(
-        (BackgroundOption e) => e.name == bgName,
-        orElse: () => BackgroundOption.image1,
-      );
-    }
+    final BackgroundItem bg = bgName != null
+        ? ShopRegistry.backgroundById(bgName)
+        : ShopRegistry.defaultBackground;
 
-    CardBackOption cb = CardBackOption.image1;
-    if (cbName != null) {
-      cb = CardBackOption.values.firstWhere(
-        (CardBackOption e) => e.name == cbName,
-        orElse: () => CardBackOption.image1,
-      );
-    }
+    final CardBackItem cb = cbName != null
+        ? ShopRegistry.cardBackById(cbName)
+        : ShopRegistry.defaultCardBack;
+
+    final FigureItem fig = figName != null
+        ? ShopRegistry.figureById(figName)
+        : ShopRegistry.defaultFigure;
 
     state = state.copyWith(
       hasSelectedLanguage: hasSelected && localeCode != null ? true : null,
       locale: hasSelected && localeCode != null ? Locale(localeCode) : null,
       selectedBackground: bg,
       selectedCardBack: cb,
+      selectedFigure: fig,
       isLoading: false,
     );
   }
@@ -55,8 +55,9 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   Future<void> _saveShopPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyBackground, state.selectedBackground.name);
-    await prefs.setString(_keyCardBack, state.selectedCardBack.name);
+    await prefs.setString(_keyBackground, state.selectedBackground.id);
+    await prefs.setString(_keyCardBack, state.selectedCardBack.id);
+    await prefs.setString(_keyFigure, state.selectedFigure.id);
   }
 
   void setDefaultDifficulty(Difficulty difficulty) {
@@ -99,14 +100,52 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     _saveLanguagePrefs();
   }
 
-  void setBackground(BackgroundOption option) {
+  void setBackground(BackgroundItem option) {
     state = state.copyWith(selectedBackground: option);
     _saveShopPrefs();
   }
 
-  void setCardBack(CardBackOption option) {
+  void setCardBack(CardBackItem option) {
     state = state.copyWith(selectedCardBack: option);
     _saveShopPrefs();
+  }
+
+  void setFigure(FigureItem option) {
+    state = state.copyWith(selectedFigure: option);
+    _saveShopPrefs();
+  }
+
+  /// Reset selections to defaults if the current items are locked at [playerLevel].
+  void validateSelections(int playerLevel) {
+    final unlocked = ShopRegistry.unlockedItemsForLevel(playerLevel);
+    bool changed = false;
+
+    BackgroundItem bg = state.selectedBackground;
+    if (ShopRegistry.requiredLevelFor(bg) != null && !unlocked.contains(bg)) {
+      bg = ShopRegistry.defaultBackground;
+      changed = true;
+    }
+
+    CardBackItem cb = state.selectedCardBack;
+    if (ShopRegistry.requiredLevelFor(cb) != null && !unlocked.contains(cb)) {
+      cb = ShopRegistry.defaultCardBack;
+      changed = true;
+    }
+
+    FigureItem fig = state.selectedFigure;
+    if (ShopRegistry.requiredLevelFor(fig) != null && !unlocked.contains(fig)) {
+      fig = ShopRegistry.defaultFigure;
+      changed = true;
+    }
+
+    if (changed) {
+      state = state.copyWith(
+        selectedBackground: bg,
+        selectedCardBack: cb,
+        selectedFigure: fig,
+      );
+      _saveShopPrefs();
+    }
   }
 }
 

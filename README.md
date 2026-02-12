@@ -114,6 +114,80 @@ Each ARB is a JSON with `"key": "text"` pairs. The key is the same across all 3 
 2. Run `flutter gen-l10n`.
 3. Use in Dart: `l10n.greeting('World')`.
 
+## Level & XP System
+
+Players earn XP by winning games. XP depends on difficulty and efficiency (time/moves). Leveling up unlocks cosmetic items (backgrounds and card backs) in the shop.
+
+All configuration is in **`lib/core/constants/xp_config.dart`**:
+
+### Base XP per difficulty (only on win)
+
+```dart
+static const int baseXpOneSuit = 50;
+static const int baseXpTwoSuits = 100;
+static const int baseXpFourSuits = 200;
+```
+
+### Multipliers (1.0x – 1.5x each)
+
+```dart
+// Time: <= 5 min = 1.5x, >= 20 min = 1.0x
+static const double timeTargetMinutes = 5.0;
+static const double timeSlowMinutes = 20.0;
+static const double maxTimeMultiplier = 1.5;
+
+// Moves: <= 80 = 1.5x, >= 200 = 1.0x
+static const int movesTarget = 80;
+static const int movesSlow = 200;
+static const double maxMovesMultiplier = 1.5;
+```
+
+### Number of levels
+
+```dart
+static const int maxLevel = 30;
+```
+
+### XP required per level
+
+```dart
+// level * 100 (level 2 = 100xp, level 10 = 900xp, level 30 = 2900xp)
+static int xpForLevel(int level) => level * 100;
+```
+
+### Shop items & rewards
+
+All shop items (backgrounds and card backs) are defined in a single file: **`assets/shop_items.json`**.
+
+To add a new item:
+1. Drop the image in `assets/images/backgrounds/` or `assets/images/cards/`
+2. Add an entry to the JSON array — that's it
+
+```json
+{
+  "id": "my_new_background",
+  "unlockLevel": 8,
+  "assetPath": "assets/images/backgrounds/my_image.png",
+  "en": "My Background",
+  "es": "Mi Fondo",
+  "pt": "Meu Fundo"
+}
+```
+
+- Array order = display order in the shop
+- `unlockLevel`: level required to unlock (omit for free from level 1)
+- Translations are inline (no ARB files needed for shop items)
+
+### Asset dimensions
+
+| Asset type | Recommended size | Aspect ratio | Format |
+|---|---|---|---|
+| **Backgrounds** | 1080 x 1920 px | 9:16 (portrait) | PNG or JPG |
+| **Card backs** | 500 x 700 px | 5:7 | PNG |
+
+- **Backgrounds** are displayed with `BoxFit.cover` (fills the screen, may crop edges). 1080x1920 covers FHD phones; larger is fine but adds APK size.
+- **Card backs** use the app's card aspect ratio of 2.5:3.5 (= 5:7). Cards render at ~30-40px wide on screen, so 500x700 is more than enough. Keep file size small since the image repeats for every face-down card.
+
 ## Build APK
 
 ```bash

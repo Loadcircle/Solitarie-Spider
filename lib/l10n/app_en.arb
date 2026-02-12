@@ -75,21 +75,39 @@
   "chooseLanguage": "Choose Language",
   "chooseLanguageMessage": "Select your preferred language",
   "shop": "Appearance",
-  "backgrounds": "Backgrounds",
+  "backgrounds": "Boards",
   "cardBacks": "Card Backs",
-  "bgDefaultGreen": "Classic Green",
-  "bgDarkEmerald": "Dark Emerald",
-  "bgImage1": "Felt Texture",
-  "bgImage2": "Ornate Felt",
-  "cbDefaultBlue": "Classic Blue",
-  "cbDarkRed": "Dark Red",
-  "cbImage1": "Red Crosshatch",
-  "cbImage2": "Royal Spade",
   "selected": "Selected",
   "fastestTime": "Fastest Time",
   "averageTime": "Average Time",
   "longestWinStreak": "Longest Win Streak",
   "bestScore": "Best Score",
   "noStats": "No stats yet for this mode.",
-  "noGamesOnDay": "No games on this day."
+  "noGamesOnDay": "No games on this day.",
+  "level": "Level",
+  "xpEarned": "+{xp} XP",
+  "@xpEarned": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "levelUp": "Level Up!",
+  "unlocksAtLevel": "Unlocks at level {level}",
+  "@unlocksAtLevel": {
+    "placeholders": {
+      "level": { "type": "int" }
+    }
+  },
+  "maxLevel": "Max Level",
+  "newUnlocks": "New Unlocks!",
+  "newUnlocksMessage": "You have unlocked new items:",
+  "goToShop": "Go to Appearance",
+  "close": "Close",
+  "nextRewardAtLevel": "Next reward at level {level}",
+  "@nextRewardAtLevel": {
+    "placeholders": {
+      "level": { "type": "int" }
+    }
+  },
+  "figures": "Figures"
 }

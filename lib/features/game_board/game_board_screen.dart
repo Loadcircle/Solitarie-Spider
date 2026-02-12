@@ -15,6 +15,8 @@ import '../../providers/timer_provider.dart';
 import '../../providers/history_provider.dart';
 import '../../core/services/sound_service.dart';
 import '../../providers/sound_service_provider.dart';
+import '../../core/constants/xp_config.dart';
+import '../../providers/player_provider.dart';
 import '../../routes/app_router.dart';
 import 'widgets/tableau_area.dart';
 import 'widgets/stock_pile_widget.dart';
@@ -55,6 +57,10 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
   bool _isAnimatingSequence = false;
   OverlayEntry? _sequenceOverlay;
 
+  // Intro animation
+  bool _isAnimatingIntro = false;
+  OverlayEntry? _introOverlay;
+
   // Auto-move animation
   OverlayEntry? _autoMoveOverlay;
   bool _isAnimatingAutoMove = false;
@@ -75,17 +81,24 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
 
   void _initGame() {
     final gameState = ref.read(gameProvider);
-    if (widget.difficulty != null || gameState == null) {
+    final bool isNewGame = widget.difficulty != null || gameState == null;
+
+    if (isNewGame) {
       final difficulty = widget.difficulty ?? Difficulty.oneSuit;
       ref.read(gameProvider.notifier).startNewGame(difficulty);
       ref.read(timerProvider.notifier).start();
       _hasShownWinDialog = false;
+
+      // Launch intro animation; _initialized deferred to onComplete
+      _isAnimatingIntro = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _startIntroAnimation();
+      });
     } else {
       ref.read(timerProvider.notifier).resume();
       _hasShownLoseDialog = false;
+      setState(() => _initialized = true);
     }
-
-    setState(() => _initialized = true);
 
     // Start background music if enabled
     final settings = ref.read(settingsProvider);
@@ -93,6 +106,58 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       _soundService.startBackgroundMusic();
     }
     _soundService.preload();
+  }
+
+  void _startIntroAnimation() {
+    // Capture stock pile position
+    final stockBox =
+        _stockPileKey.currentContext?.findRenderObject() as RenderBox?;
+    if (stockBox == null) {
+      // Fallback: skip animation
+      if (mounted) setState(() { _isAnimatingIntro = false; _initialized = true; });
+      return;
+    }
+    final stockPos = stockBox.localToGlobal(Offset.zero);
+    final stockSize = stockBox.size;
+
+    final screenSize = MediaQuery.of(context).size;
+    final screenCenter = Offset(
+      screenSize.width / 2,
+      screenSize.height / 2,
+    );
+
+    // Use the normal card width from layout
+    final cardWidth = CardDimensions.cardWidth(screenSize.width);
+
+    final settings = ref.read(settingsProvider);
+    final cbOption = settings.selectedCardBack;
+
+    // Target: center of the stock pile's first card
+    final targetPosition = Offset(
+      stockPos.dx + stockSize.width - cardWidth,
+      stockPos.dy,
+    );
+
+    _introOverlay = OverlayEntry(
+      builder: (BuildContext context) => _IntroCardBack(
+        screenCenter: screenCenter,
+        targetPosition: targetPosition,
+        cardWidth: cardWidth,
+        cardBackOption: cbOption,
+        onComplete: () {
+          _introOverlay?.remove();
+          _introOverlay = null;
+          if (mounted) {
+            setState(() {
+              _isAnimatingIntro = false;
+              _initialized = true;
+            });
+          }
+        },
+      ),
+    );
+
+    Overlay.of(context).insert(_introOverlay!);
   }
 
   void _playSound(GameSound sound) {
@@ -121,7 +186,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
   }
 
   void _onDealFromStock() {
-    if (_isAnimatingDeal) return;
+    if (_isAnimatingDeal || _isAnimatingIntro) return;
 
     final l10n = AppLocalizations.of(context)!;
     final state = ref.read(gameProvider);
@@ -211,6 +276,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
 
     cardWidth ??= 30.0;
 
+    final figureItem = ref.read(settingsProvider).selectedFigure;
     _dealOverlay = OverlayEntry(
       builder: (context) => _DealFlyingCards(
         stockPosition: Offset(
@@ -220,6 +286,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
         targetPositions: targets,
         cards: dealtCards,
         cardWidth: cardWidth,
+        figureItem: figureItem,
         onComplete: () {
           _dealOverlay?.remove();
           _dealOverlay = null;
@@ -303,12 +370,14 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       flatSources.addAll(allSourcePositions[i]);
     }
 
+    final seqFigureItem = ref.read(settingsProvider).selectedFigure;
     _sequenceOverlay = OverlayEntry(
       builder: (context) => _SequenceFlyingCards(
         sourcePositions: flatSources,
         targetPosition: targetPos,
         cards: flatCards,
         cardWidth: cardWidth!,
+        figureItem: seqFigureItem,
         onComplete: () {
           _sequenceOverlay?.remove();
           _sequenceOverlay = null;
@@ -324,6 +393,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
 
   @override
   void dispose() {
+    _introOverlay?.remove();
+    _introOverlay = null;
     _dealOverlay?.remove();
     _dealOverlay = null;
     _sequenceOverlay?.remove();
@@ -380,7 +451,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
   void _onCardTap(int columnIndex, int cardIndex) {
     final settings = ref.read(settingsProvider);
     if (!settings.tapToAutoMove) return;
-    if (_isAnimatingAutoMove) return;
+    if (_isAnimatingAutoMove || _isAnimatingIntro) return;
 
     final gameState = ref.read(gameProvider);
     if (gameState == null || gameState.isWon) return;
@@ -508,12 +579,14 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
       _autoMoveHideFromIndex = moveStartIndex;
     });
 
+    final autoFigureItem = ref.read(settingsProvider).selectedFigure;
     _autoMoveOverlay = OverlayEntry(
       builder: (context) => _AutoMoveFlyingCards(
         sourcePositions: sourcePositions,
         targetPositions: targetPositions,
         cards: cards,
         cardWidth: cardWidth,
+        figureItem: autoFigureItem,
         onComplete: () {
           _autoMoveOverlay?.remove();
           _autoMoveOverlay = null;
@@ -548,6 +621,17 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
           isWon: true,
         ));
 
+    // Calculate and grant XP
+    final int xpEarned = XpConfig.calculateXp(
+      difficulty: state.difficulty,
+      time: state.elapsed,
+      moves: state.moveCount,
+    );
+    final int levelBefore = ref.read(playerProvider).level;
+    ref.read(playerProvider.notifier).addXp(xpEarned);
+    final int levelAfter = ref.read(playerProvider).level;
+    final bool leveledUp = levelAfter > levelBefore;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -555,6 +639,9 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
         score: state.score,
         moves: state.moveCount,
         elapsed: state.elapsed,
+        xpEarned: xpEarned,
+        leveledUp: leveledUp,
+        newLevel: levelAfter,
         onPlayAgain: () {
           Navigator.of(ctx).pop();
           ref
@@ -648,15 +735,16 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     if (_initialized &&
         !gameState.isWon &&
         !_hasShownLoseDialog &&
-        GameOverDetector.isGameOver(gameState)) {
+        GameOverDetector.isGameOver(gameState,
+            allowDealWithEmptyColumns: settings.allowDealWithEmptyColumns)) {
       _hasShownLoseDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showLoseDialog();
       });
     }
 
-    final BackgroundOption bgOption = settings.selectedBackground;
-    final CardBackOption cbOption = settings.selectedCardBack;
+    final BackgroundItem bgOption = settings.selectedBackground;
+    final CardBackItem cbOption = settings.selectedCardBack;
 
     Widget bodyContent = LayoutBuilder(
       builder: (context, constraints) {
@@ -684,6 +772,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
                   hideCardsInColumn: _autoMoveHideColumn,
                   hideCardsFromIndex: _autoMoveHideFromIndex,
                   cardBackOption: cbOption,
+                  figureItem: settings.selectedFigure,
                 ),
               ),
             ),
@@ -704,7 +793,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset(bgOption.assetPath!, fit: BoxFit.cover),
+              child: Image.asset(bgOption.assetPath!, fit: BoxFit.fill),
             ),
             bodyContent,
           ],
@@ -736,7 +825,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
     );
   }
 
-  Widget _buildInfoBar(GameState gameState, CardBackOption cbOption) {
+  Widget _buildInfoBar(GameState gameState, CardBackItem cbOption) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth = CardDimensions.cardWidth(constraints.maxWidth);
@@ -769,6 +858,7 @@ class _DealFlyingCards extends StatefulWidget {
     required this.cards,
     required this.cardWidth,
     required this.onComplete,
+    this.figureItem,
   });
 
   final Offset stockPosition;
@@ -776,6 +866,7 @@ class _DealFlyingCards extends StatefulWidget {
   final List<PlayingCard> cards;
   final double cardWidth;
   final VoidCallback onComplete;
+  final FigureItem? figureItem;
 
   @override
   State<_DealFlyingCards> createState() => _DealFlyingCardsState();
@@ -854,7 +945,7 @@ class _DealFlyingCardsState extends State<_DealFlyingCards>
                 );
               },
               child:
-                  CardWidget(card: widget.cards[i], cardWidth: widget.cardWidth),
+                  CardWidget(card: widget.cards[i], cardWidth: widget.cardWidth, figureItem: widget.figureItem),
             ),
         ],
       ),
@@ -869,6 +960,7 @@ class _SequenceFlyingCards extends StatefulWidget {
     required this.cards,
     required this.cardWidth,
     required this.onComplete,
+    this.figureItem,
   });
 
   final List<Offset> sourcePositions;
@@ -876,6 +968,7 @@ class _SequenceFlyingCards extends StatefulWidget {
   final List<PlayingCard> cards;
   final double cardWidth;
   final VoidCallback onComplete;
+  final FigureItem? figureItem;
 
   @override
   State<_SequenceFlyingCards> createState() => _SequenceFlyingCardsState();
@@ -991,6 +1084,7 @@ class _SequenceFlyingCardsState extends State<_SequenceFlyingCards>
                     child: CardWidget(
                       card: widget.cards.first,
                       cardWidth: widget.cardWidth,
+                      figureItem: widget.figureItem,
                     ),
                   ),
                 ),
@@ -1008,6 +1102,7 @@ class _SequenceFlyingCardsState extends State<_SequenceFlyingCards>
                   child: CardWidget(
                     card: widget.cards[i],
                     cardWidth: widget.cardWidth,
+                    figureItem: widget.figureItem,
                   ),
                 ),
             ],
@@ -1025,6 +1120,7 @@ class _AutoMoveFlyingCards extends StatefulWidget {
     required this.cards,
     required this.cardWidth,
     required this.onComplete,
+    this.figureItem,
   });
 
   final List<Offset> sourcePositions;
@@ -1032,6 +1128,7 @@ class _AutoMoveFlyingCards extends StatefulWidget {
   final List<PlayingCard> cards;
   final double cardWidth;
   final VoidCallback onComplete;
+  final FigureItem? figureItem;
 
   @override
   State<_AutoMoveFlyingCards> createState() => _AutoMoveFlyingCardsState();
@@ -1098,8 +1195,209 @@ class _AutoMoveFlyingCardsState extends State<_AutoMoveFlyingCards>
                   child: CardWidget(
                     card: widget.cards[i],
                     cardWidth: widget.cardWidth,
+                    figureItem: widget.figureItem,
                   ),
                 ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _IntroCardBack extends StatefulWidget {
+  const _IntroCardBack({
+    required this.screenCenter,
+    required this.targetPosition,
+    required this.cardWidth,
+    required this.cardBackOption,
+    required this.onComplete,
+  });
+
+  final Offset screenCenter;
+  final Offset targetPosition;
+  final double cardWidth;
+  final CardBackItem cardBackOption;
+  final VoidCallback onComplete;
+
+  @override
+  State<_IntroCardBack> createState() => _IntroCardBackState();
+}
+
+class _IntroCardBackState extends State<_IntroCardBack>
+    with TickerProviderStateMixin {
+  // Phase 1: present (fade-in + subtle scale)
+  late final AnimationController _presentController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<double> _presentScaleAnimation;
+
+  // Phase 2: fly to stock pile
+  late final AnimationController _flyController;
+  late final Animation<Offset> _flyPositionAnimation;
+  late final Animation<double> _flyScaleAnimation;
+
+  static const _presentDuration = Duration(milliseconds: 400);
+  static const _flyDuration = Duration(milliseconds: 500);
+  static const double _bigScale = 5;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Phase 1: fade-in 0→1, scale 0.8→1.0 (at big size)
+    _presentController = AnimationController(
+      duration: _presentDuration,
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _presentController, curve: Curves.easeOut),
+    );
+    _presentScaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _presentController, curve: Curves.easeOut),
+    );
+
+    // Phase 2: fly from center to stock pile, scale _bigScale→1.0
+    _flyController = AnimationController(
+      duration: _flyDuration,
+      vsync: this,
+    );
+
+    final double bigWidth = widget.cardWidth * _bigScale;
+    final double bigHeight = CardDimensions.cardHeight(bigWidth);
+
+    // Centered position at big size
+    final Offset centeredPos = Offset(
+      widget.screenCenter.dx - bigWidth / 2,
+      widget.screenCenter.dy - bigHeight / 2,
+    );
+
+    _flyPositionAnimation = Tween<Offset>(
+      begin: centeredPos,
+      end: widget.targetPosition,
+    ).animate(
+      CurvedAnimation(parent: _flyController, curve: Curves.easeInOutCubic),
+    );
+
+    _flyScaleAnimation = Tween<double>(begin: _bigScale, end: 1.0).animate(
+      CurvedAnimation(parent: _flyController, curve: Curves.easeInOutCubic),
+    );
+
+    // Chain: present → fly → onComplete
+    _presentController.forward();
+    _presentController.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.completed && mounted) {
+        _flyController.forward();
+      }
+    });
+    _flyController.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.completed && mounted) {
+        widget.onComplete();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _presentController.dispose();
+    _flyController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildCardBack(double width) {
+    final double height = CardDimensions.cardHeight(width);
+    final CardBackItem option = widget.cardBackOption;
+
+    if (option.isImage) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(CardDimensions.borderRadius),
+          border: Border.all(color: Colors.white24, width: 1),
+          boxShadow: const [
+            BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 6)),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius:
+              BorderRadius.circular(CardDimensions.borderRadius - 1),
+          child: Image.asset(option.assetPath!, fit: BoxFit.fill),
+        ),
+      );
+    }
+
+    final Color backColor = option.color ?? const Color(0xFF1565C0);
+    final Color patternColor = option.colorPattern ?? const Color(0xFF1976D2);
+
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: backColor,
+        borderRadius: BorderRadius.circular(CardDimensions.borderRadius),
+        border: Border.all(color: patternColor, width: 1),
+        boxShadow: const [
+          BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 6)),
+        ],
+      ),
+      child: Center(
+        child: Container(
+          width: width * 0.7,
+          height: height * 0.7,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(CardDimensions.borderRadius),
+            border: Border.all(color: patternColor, width: 1),
+          ),
+          child: Center(
+            child: Text(
+              '\u2660',
+              style: TextStyle(color: patternColor, fontSize: width * 0.4),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_presentController, _flyController]),
+        builder: (BuildContext context, Widget? child) {
+          final bool isFlying = _presentController.isCompleted;
+
+          if (isFlying) {
+            // Phase 2: fly from center to stock pile
+            final double currentScale = _flyScaleAnimation.value;
+            final double currentWidth = widget.cardWidth * currentScale;
+            return Stack(
+              children: [
+                Positioned(
+                  left: _flyPositionAnimation.value.dx,
+                  top: _flyPositionAnimation.value.dy,
+                  child: _buildCardBack(currentWidth),
+                ),
+              ],
+            );
+          }
+
+          // Phase 1: present at big size in center
+          final double presentScale = _presentScaleAnimation.value;
+          final double bigWidth = widget.cardWidth * _bigScale * presentScale;
+          final double bigHeight = CardDimensions.cardHeight(bigWidth);
+          return Stack(
+            children: [
+              Positioned(
+                left: widget.screenCenter.dx - bigWidth / 2,
+                top: widget.screenCenter.dy - bigHeight / 2,
+                child: Opacity(
+                  opacity: _fadeAnimation.value,
+                  child: _buildCardBack(bigWidth),
+                ),
+              ),
             ],
           );
         },

@@ -200,34 +200,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shop => 'Appearance';
 
   @override
-  String get backgrounds => 'Backgrounds';
+  String get backgrounds => 'Boards';
 
   @override
   String get cardBacks => 'Card Backs';
-
-  @override
-  String get bgDefaultGreen => 'Classic Green';
-
-  @override
-  String get bgDarkEmerald => 'Dark Emerald';
-
-  @override
-  String get bgImage1 => 'Felt Texture';
-
-  @override
-  String get bgImage2 => 'Ornate Felt';
-
-  @override
-  String get cbDefaultBlue => 'Classic Blue';
-
-  @override
-  String get cbDarkRed => 'Dark Red';
-
-  @override
-  String get cbImage1 => 'Red Crosshatch';
-
-  @override
-  String get cbImage2 => 'Royal Spade';
 
   @override
   String get selected => 'Selected';
@@ -249,4 +225,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noGamesOnDay => 'No games on this day.';
+
+  @override
+  String get level => 'Level';
+
+  @override
+  String xpEarned(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String get levelUp => 'Level Up!';
+
+  @override
+  String unlocksAtLevel(int level) {
+    return 'Unlocks at level $level';
+  }
+
+  @override
+  String get maxLevel => 'Max Level';
+
+  @override
+  String get newUnlocks => 'New Unlocks!';
+
+  @override
+  String get newUnlocksMessage => 'You have unlocked new items:';
+
+  @override
+  String get goToShop => 'Go to Appearance';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String nextRewardAtLevel(int level) {
+    return 'Next reward at level $level';
+  }
+
+  @override
+  String get figures => 'Figures';
 }

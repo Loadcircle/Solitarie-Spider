@@ -1,4 +1,5 @@
 import 'dart:ui';
+import '../core/constants/shop_registry.dart';
 import '../core/enums/difficulty.dart';
 import 'shop_item.dart';
 
@@ -13,8 +14,9 @@ class SettingsState {
   final bool tapToAutoMove;
   final bool hasSelectedLanguage;
   final bool isLoading;
-  final BackgroundOption selectedBackground;
-  final CardBackOption selectedCardBack;
+  final BackgroundItem selectedBackground;
+  final CardBackItem selectedCardBack;
+  final FigureItem selectedFigure;
 
   const SettingsState({
     this.defaultDifficulty = Difficulty.oneSuit,
@@ -27,8 +29,9 @@ class SettingsState {
     this.tapToAutoMove = true,
     this.hasSelectedLanguage = false,
     this.isLoading = true,
-    this.selectedBackground = BackgroundOption.image1,
-    this.selectedCardBack = CardBackOption.image1,
+    this.selectedBackground = ShopRegistry.defaultBackground,
+    this.selectedCardBack = ShopRegistry.defaultCardBack,
+    this.selectedFigure = ShopRegistry.defaultFigure,
   });
 
   SettingsState copyWith({
@@ -42,8 +45,9 @@ class SettingsState {
     bool? tapToAutoMove,
     bool? hasSelectedLanguage,
     bool? isLoading,
-    BackgroundOption? selectedBackground,
-    CardBackOption? selectedCardBack,
+    BackgroundItem? selectedBackground,
+    CardBackItem? selectedCardBack,
+    FigureItem? selectedFigure,
   }) {
     return SettingsState(
       defaultDifficulty: defaultDifficulty ?? this.defaultDifficulty,
@@ -59,6 +63,7 @@ class SettingsState {
       isLoading: isLoading ?? this.isLoading,
       selectedBackground: selectedBackground ?? this.selectedBackground,
       selectedCardBack: selectedCardBack ?? this.selectedCardBack,
+      selectedFigure: selectedFigure ?? this.selectedFigure,
     );
   }
 }

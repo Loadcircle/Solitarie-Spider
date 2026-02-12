@@ -202,34 +202,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shop => 'Aparência';
 
   @override
-  String get backgrounds => 'Fundos';
+  String get backgrounds => 'Tabuleiros';
 
   @override
   String get cardBacks => 'Dorsos';
-
-  @override
-  String get bgDefaultGreen => 'Verde Clássico';
-
-  @override
-  String get bgDarkEmerald => 'Esmeralda Escuro';
-
-  @override
-  String get bgImage1 => 'Textura Feltro';
-
-  @override
-  String get bgImage2 => 'Feltro Ornamentado';
-
-  @override
-  String get cbDefaultBlue => 'Azul Clássico';
-
-  @override
-  String get cbDarkRed => 'Vermelho Escuro';
-
-  @override
-  String get cbImage1 => 'Vermelho Cruzado';
-
-  @override
-  String get cbImage2 => 'Espada Real';
 
   @override
   String get selected => 'Selecionado';
@@ -251,4 +227,43 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get noGamesOnDay => 'Nenhum jogo neste dia.';
+
+  @override
+  String get level => 'Nível';
+
+  @override
+  String xpEarned(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String get levelUp => 'Subiu de nível!';
+
+  @override
+  String unlocksAtLevel(int level) {
+    return 'Desbloqueia no nível $level';
+  }
+
+  @override
+  String get maxLevel => 'Nível máximo';
+
+  @override
+  String get newUnlocks => 'Novos desbloqueios!';
+
+  @override
+  String get newUnlocksMessage => 'Você desbloqueou novos itens:';
+
+  @override
+  String get goToShop => 'Ir para Aparência';
+
+  @override
+  String get close => 'Fechar';
+
+  @override
+  String nextRewardAtLevel(int level) {
+    return 'Próxima recompensa no nível $level';
+  }
+
+  @override
+  String get figures => 'Figuras';
 }

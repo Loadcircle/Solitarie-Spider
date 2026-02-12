@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/card_dimensions.dart';
+import '../../../core/constants/shop_registry.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../models/shop_item.dart';
 
 class FaceDownCard extends StatelessWidget {
@@ -11,12 +12,12 @@ class FaceDownCard extends StatelessWidget {
   });
 
   final double cardWidth;
-  final CardBackOption? cardBackOption;
+  final CardBackItem? cardBackOption;
 
   @override
   Widget build(BuildContext context) {
     final cardHeight = CardDimensions.cardHeight(cardWidth);
-    final option = cardBackOption ?? CardBackOption.defaultBlue;
+    final option = cardBackOption ?? ShopRegistry.defaultCardBack;
 
     if (option.isImage) {
       return Container(

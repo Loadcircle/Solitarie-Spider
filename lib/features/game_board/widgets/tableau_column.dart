@@ -23,6 +23,7 @@ class TableauColumn extends StatefulWidget {
     this.hideLastCard = false,
     this.hideFromIndex,
     this.cardBackOption,
+    this.figureItem,
   });
 
   final int columnIndex;
@@ -37,7 +38,8 @@ class TableauColumn extends StatefulWidget {
   final ({int col, int card})? shakeTarget;
   final bool hideLastCard;
   final int? hideFromIndex;
-  final CardBackOption? cardBackOption;
+  final CardBackItem? cardBackOption;
+  final FigureItem? figureItem;
 
   @override
   State<TableauColumn> createState() => _TableauColumnState();
@@ -146,7 +148,7 @@ class _TableauColumnState extends State<TableauColumn> {
         widget.shakeTarget!.col == widget.columnIndex &&
         widget.shakeTarget!.card == index;
 
-    Widget cardWidget = CardWidget(card: card, cardWidth: widget.cardWidth);
+    Widget cardWidget = CardWidget(card: card, cardWidth: widget.cardWidth, figureItem: widget.figureItem);
 
     // Apply dimming
     if (isDragDimmed) {
@@ -225,7 +227,7 @@ class _TableauColumnState extends State<TableauColumn> {
             Positioned(
               top: i * faceUpOverlap,
               child: CardWidget(
-                  card: draggedCards[i], cardWidth: widget.cardWidth),
+                  card: draggedCards[i], cardWidth: widget.cardWidth, figureItem: widget.figureItem),
             ),
         ],
       ),

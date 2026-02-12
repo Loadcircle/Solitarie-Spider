@@ -4,6 +4,7 @@ import '../../../models/playing_card.dart';
 import '../../../models/shop_item.dart';
 import 'tableau_column.dart';
 
+
 class TableauArea extends StatelessWidget {
   const TableauArea({
     super.key,
@@ -20,6 +21,7 @@ class TableauArea extends StatelessWidget {
     this.hideCardsInColumn,
     this.hideCardsFromIndex,
     this.cardBackOption,
+    this.figureItem,
   });
 
   final List<List<PlayingCard>> tableau;
@@ -35,7 +37,8 @@ class TableauArea extends StatelessWidget {
   final List<GlobalKey>? columnKeys;
   final int? hideCardsInColumn;
   final int? hideCardsFromIndex;
-  final CardBackOption? cardBackOption;
+  final CardBackItem? cardBackOption;
+  final FigureItem? figureItem;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +76,7 @@ class TableauArea extends StatelessWidget {
                         ? hideCardsFromIndex
                         : null,
                     cardBackOption: cardBackOption,
+                    figureItem: figureItem,
                   ),
                 ),
               ],

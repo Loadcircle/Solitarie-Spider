@@ -11,6 +11,9 @@ class WinDialog extends StatelessWidget {
     required this.elapsed,
     required this.onPlayAgain,
     required this.onBackToHome,
+    required this.xpEarned,
+    required this.leveledUp,
+    required this.newLevel,
   });
 
   final int score;
@@ -18,6 +21,9 @@ class WinDialog extends StatelessWidget {
   final Duration elapsed;
   final VoidCallback onPlayAgain;
   final VoidCallback onBackToHome;
+  final int xpEarned;
+  final bool leveledUp;
+  final int newLevel;
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -84,6 +90,26 @@ class WinDialog extends StatelessWidget {
               l10n.totalTime(_formatDuration(elapsed)),
               style: TextStyle(color: AppTheme.secondaryText),
             ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.xpEarned(xpEarned),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFFFFD54F),
+              ),
+            ),
+            if (leveledUp) ...[
+              const SizedBox(height: 4),
+              Text(
+                '${l10n.levelUp} → ${l10n.level} $newLevel',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF81C784),
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             AppButton(
               icon: Icons.replay,

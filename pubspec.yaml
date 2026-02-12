@@ -28,10 +28,15 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
+    - assets/shop_items.json
     - assets/sounds/
     - assets/images/
     - assets/images/backgrounds/
     - assets/images/cards/
+    - assets/images/figures/
+    - assets/images/figures/elegant/
+    - assets/images/figures/royal/
+    - assets/images/figures/samurai/
 
 flutter_launcher_icons:
   android: true

@@ -75,21 +75,39 @@
   "chooseLanguage": "Elegir Idioma",
   "chooseLanguageMessage": "Selecciona tu idioma preferido",
   "shop": "Apariencia",
-  "backgrounds": "Fondos",
+  "backgrounds": "Tableros",
   "cardBacks": "Dorsos",
-  "bgDefaultGreen": "Verde Clásico",
-  "bgDarkEmerald": "Esmeralda Oscuro",
-  "bgImage1": "Textura Fieltro",
-  "bgImage2": "Fieltro Ornamentado",
-  "cbDefaultBlue": "Azul Clásico",
-  "cbDarkRed": "Rojo Oscuro",
-  "cbImage1": "Rojo Entrecruzado",
-  "cbImage2": "Pica Real",
   "selected": "Seleccionado",
   "fastestTime": "Tiempo Más Rápido",
   "averageTime": "Tiempo Promedio",
   "longestWinStreak": "Racha Más Larga",
   "bestScore": "Mejor Puntuación",
   "noStats": "Sin estadísticas para este modo.",
-  "noGamesOnDay": "No hay partidas en este día."
+  "noGamesOnDay": "No hay partidas en este día.",
+  "level": "Nivel",
+  "xpEarned": "+{xp} XP",
+  "@xpEarned": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "levelUp": "¡Subiste de nivel!",
+  "unlocksAtLevel": "Se desbloquea en nivel {level}",
+  "@unlocksAtLevel": {
+    "placeholders": {
+      "level": { "type": "int" }
+    }
+  },
+  "maxLevel": "Nivel máximo",
+  "newUnlocks": "Nuevos desbloqueos!",
+  "newUnlocksMessage": "Has desbloqueado nuevos items:",
+  "goToShop": "Ir a Apariencia",
+  "close": "Cerrar",
+  "nextRewardAtLevel": "Próxima recompensa en nivel {level}",
+  "@nextRewardAtLevel": {
+    "placeholders": {
+      "level": { "type": "int" }
+    }
+  },
+  "figures": "Figuras"
 }

@@ -33,7 +33,7 @@ class AppTheme {
   static const Color cardBack = Color(0xFF1565C0);
   static const Color cardBackPattern = Color(0xFF1976D2);
   static const Color redSuit = Color(0xFFC62828);
-  static const Color blackSuit = Color(0xFF2A2F2C);
+  static const Color blackSuit = Color.fromARGB(255, 0, 0, 0);
   static const Color emptyPile = Color(0xFF0D3B0E);
   static const Color goldAccent = Color(0xFFFFD54F);
 

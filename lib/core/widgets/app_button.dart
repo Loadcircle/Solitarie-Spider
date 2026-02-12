@@ -7,12 +7,14 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.isPrimary = true,
+    this.isGold = false,
   });
 
   final IconData? icon;
   final String label;
   final VoidCallback onPressed;
   final bool isPrimary;
+  final bool isGold;
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +24,23 @@ class AppButton extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: isPrimary
-              ? const [Color(0xFF4CAF50), Color(0xFF2E7D32)]
-              : const [Color(0xFF3A4A3E), Color(0xFF2A3530)],
-        ),
+          colors: isGold
+              ? const [
+                  Color.fromARGB(255, 233, 193, 63), // gold top
+                  Color.fromARGB(255, 190, 143, 0), // gold bottom
+                ]
+              : isPrimary
+                  ? const [Color(0xFF4CAF50), Color(0xFF2E7D32)]
+                  : const [Color(0xFF3A4A3E), Color(0xFF2A3530)],
+              ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isPrimary
-              ? const Color(0xFF5CAF60)
-              : const Color(0xFF4A5A4E),
-        ),
+          color: isGold
+              ? const Color(0xFFFFE082)
+              : isPrimary
+                  ? const Color(0xFF5CAF60)
+                  : const Color(0xFF4A5A4E),
+              ),
         boxShadow: const [
           BoxShadow(
             color: Colors.black26,

@@ -463,7 +463,7 @@ abstract class AppLocalizations {
   /// No description provided for @backgrounds.
   ///
   /// In en, this message translates to:
-  /// **'Backgrounds'**
+  /// **'Boards'**
   String get backgrounds;
 
   /// No description provided for @cardBacks.
@@ -471,54 +471,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Card Backs'**
   String get cardBacks;
-
-  /// No description provided for @bgDefaultGreen.
-  ///
-  /// In en, this message translates to:
-  /// **'Classic Green'**
-  String get bgDefaultGreen;
-
-  /// No description provided for @bgDarkEmerald.
-  ///
-  /// In en, this message translates to:
-  /// **'Dark Emerald'**
-  String get bgDarkEmerald;
-
-  /// No description provided for @bgImage1.
-  ///
-  /// In en, this message translates to:
-  /// **'Felt Texture'**
-  String get bgImage1;
-
-  /// No description provided for @bgImage2.
-  ///
-  /// In en, this message translates to:
-  /// **'Ornate Felt'**
-  String get bgImage2;
-
-  /// No description provided for @cbDefaultBlue.
-  ///
-  /// In en, this message translates to:
-  /// **'Classic Blue'**
-  String get cbDefaultBlue;
-
-  /// No description provided for @cbDarkRed.
-  ///
-  /// In en, this message translates to:
-  /// **'Dark Red'**
-  String get cbDarkRed;
-
-  /// No description provided for @cbImage1.
-  ///
-  /// In en, this message translates to:
-  /// **'Red Crosshatch'**
-  String get cbImage1;
-
-  /// No description provided for @cbImage2.
-  ///
-  /// In en, this message translates to:
-  /// **'Royal Spade'**
-  String get cbImage2;
 
   /// No description provided for @selected.
   ///
@@ -561,6 +513,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No games on this day.'**
   String get noGamesOnDay;
+
+  /// No description provided for @level.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get level;
+
+  /// No description provided for @xpEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'+{xp} XP'**
+  String xpEarned(int xp);
+
+  /// No description provided for @levelUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Level Up!'**
+  String get levelUp;
+
+  /// No description provided for @unlocksAtLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocks at level {level}'**
+  String unlocksAtLevel(int level);
+
+  /// No description provided for @maxLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Level'**
+  String get maxLevel;
+
+  /// No description provided for @newUnlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'New Unlocks!'**
+  String get newUnlocks;
+
+  /// No description provided for @newUnlocksMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unlocked new items:'**
+  String get newUnlocksMessage;
+
+  /// No description provided for @goToShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Appearance'**
+  String get goToShop;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @nextRewardAtLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next reward at level {level}'**
+  String nextRewardAtLevel(int level);
+
+  /// No description provided for @figures.
+  ///
+  /// In en, this message translates to:
+  /// **'Figures'**
+  String get figures;
 }
 
 class _AppLocalizationsDelegate

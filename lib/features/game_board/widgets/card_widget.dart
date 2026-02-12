@@ -1,17 +1,35 @@
 import 'package:flutter/material.dart';
+import '../../../core/enums/rank.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/card_dimensions.dart';
 import '../../../models/playing_card.dart';
+import '../../../models/shop_item.dart';
 
 class CardWidget extends StatelessWidget {
   const CardWidget({
     super.key,
     required this.card,
     required this.cardWidth,
+    this.figureItem,
   });
 
   final PlayingCard card;
   final double cardWidth;
+  final FigureItem? figureItem;
+
+  String? _figurePath() {
+    if (figureItem == null) return null;
+    switch (card.rank) {
+      case Rank.jack:
+        return figureItem!.jackPath;
+      case Rank.queen:
+        return figureItem!.queenPath;
+      case Rank.king:
+        return figureItem!.kingPath;
+      default:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +38,7 @@ class CardWidget extends StatelessWidget {
     final color = isRed ? AppTheme.redSuit : AppTheme.blackSuit;
     final rankFontSize = cardWidth * 0.45;
     final suitFontSize = cardWidth * 0.35;
+    final String? figPath = _figurePath();
 
     return Container(
       width: cardWidth,
@@ -69,19 +88,37 @@ class CardWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                card.suit.symbol,
-                style: TextStyle(
-                  color: color,
-                  fontSize: rankFontSize * 1.8,
-                  height: 1.0,
+            if (figPath != null) ...[
+              Expanded(
+                child: ClipRect(
+                  child: Align(
+                    alignment: const Alignment(0, 0.5),
+                    child: OverflowBox(
+                      maxWidth: cardWidth * 0.9,
+                      maxHeight: cardHeight * 0.85,
+                      child: Image.asset(
+                        figPath,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            const Spacer(),
+            ] else ...[
+              const Spacer(),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  card.suit.symbol,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: rankFontSize * 1.5,
+                    height: 1.0,
+                  ),
+                ),
+              ),
+              const Spacer(),
+            ],
           ],
         ),
       ),

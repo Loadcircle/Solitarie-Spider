@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/card_dimensions.dart';
+import '../../../core/constants/shop_registry.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/shop_item.dart';
 
@@ -15,7 +16,7 @@ class StockPileWidget extends StatelessWidget {
   final int dealsRemaining;
   final double cardWidth;
   final VoidCallback onTap;
-  final CardBackOption? cardBackOption;
+  final CardBackItem? cardBackOption;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class StockPileWidget extends StatelessWidget {
       );
     }
 
-    final option = cardBackOption ?? CardBackOption.defaultBlue;
+    final option = cardBackOption ?? ShopRegistry.defaultCardBack;
     final Color backColor = option.color ?? AppTheme.cardBack;
     final Color patternColor = option.colorPattern ?? AppTheme.cardBackPattern;
     final bool isImageBack = option.isImage;

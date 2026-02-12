@@ -31,7 +31,7 @@ class CompletedArea extends StatelessWidget {
               decoration: BoxDecoration(
                 color: i < completedSequences
                     ? AppTheme.cardWhite
-                    : AppTheme.emptyPile,
+                    : const Color.fromARGB(83, 13, 59, 14),
                 borderRadius:
                     BorderRadius.circular(CardDimensions.borderRadius),
                 border: Border.all(

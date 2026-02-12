@@ -1,128 +1,88 @@
 import 'package:flutter/material.dart';
 
-enum BackgroundOption { image1, image2, defaultGreen, darkEmerald }
+class BackgroundItem {
+  final String id;
+  final String displayNameKey;
+  final int? unlockLevel;
+  final String? assetPath;
+  final LinearGradient? gradient;
+  final Color? color;
+  final Color? colorLight;
 
-enum CardBackOption { image1, image2, defaultBlue, darkRed }
+  const BackgroundItem({
+    required this.id,
+    required this.displayNameKey,
+    this.unlockLevel,
+    this.assetPath,
+    this.gradient,
+    this.color,
+    this.colorLight,
+  });
 
-extension BackgroundOptionExt on BackgroundOption {
-  String get displayNameKey {
-    switch (this) {
-      case BackgroundOption.defaultGreen:
-        return 'bgDefaultGreen';
-      case BackgroundOption.darkEmerald:
-        return 'bgDarkEmerald';
-      case BackgroundOption.image1:
-        return 'bgImage1';
-      case BackgroundOption.image2:
-        return 'bgImage2';
-    }
-  }
-
-  bool get isImage =>
-      this == BackgroundOption.image1 || this == BackgroundOption.image2;
-
+  bool get isImage => assetPath != null;
   bool get isGradient => gradient != null && !isImage;
 
-  LinearGradient? get gradient {
-    switch (this) {
-      case BackgroundOption.defaultGreen:
-        return const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF1E5E2A), Color(0xFF174D22)],
-        );
-      case BackgroundOption.darkEmerald:
-        return const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF0A2F1A), Color(0xFF071F10)],
-        );
-      default:
-        return null;
-    }
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BackgroundItem && runtimeType == other.runtimeType && id == other.id;
 
-  String? get assetPath {
-    switch (this) {
-      case BackgroundOption.image1:
-        return 'assets/images/backgrounds/background_n1.png';
-      case BackgroundOption.image2:
-        return 'assets/images/backgrounds/background_n2.png';
-      default:
-        return null;
-    }
-  }
-
-  Color? get color {
-    switch (this) {
-      case BackgroundOption.defaultGreen:
-        return const Color(0xFF1E5E2A);
-      case BackgroundOption.darkEmerald:
-        return const Color(0xFF0A2F1A);
-      default:
-        return null;
-    }
-  }
-
-  Color? get colorLight {
-    switch (this) {
-      case BackgroundOption.defaultGreen:
-        return const Color(0xFF2E7D32);
-      case BackgroundOption.darkEmerald:
-        return const Color(0xFF0F4025);
-      default:
-        return null;
-    }
-  }
+  @override
+  int get hashCode => id.hashCode;
 }
 
-extension CardBackOptionExt on CardBackOption {
-  String get displayNameKey {
-    switch (this) {
-      case CardBackOption.defaultBlue:
-        return 'cbDefaultBlue';
-      case CardBackOption.darkRed:
-        return 'cbDarkRed';
-      case CardBackOption.image1:
-        return 'cbImage1';
-      case CardBackOption.image2:
-        return 'cbImage2';
-    }
-  }
+class FigureItem {
+  final String id;
+  final String displayNameKey;
+  final int? unlockLevel;
+  final String folderPath;
 
-  bool get isImage =>
-      this == CardBackOption.image1 || this == CardBackOption.image2;
+  const FigureItem({
+    required this.id,
+    required this.displayNameKey,
+    this.unlockLevel,
+    required this.folderPath,
+  });
 
-  String? get assetPath {
-    switch (this) {
-      case CardBackOption.image1:
-        return 'assets/images/cards/card_1.png';
-      case CardBackOption.image2:
-        return 'assets/images/cards/card_2.png';
-      default:
-        return null;
-    }
-  }
+  bool get isImage => true;
+  String get previewPath => '$folderPath/preview.png';
+  String get jackPath => '$folderPath/jack.png';
+  String get queenPath => '$folderPath/queen.png';
+  String get kingPath => '$folderPath/king.png';
 
-  Color? get color {
-    switch (this) {
-      case CardBackOption.defaultBlue:
-        return const Color(0xFF1565C0);
-      case CardBackOption.darkRed:
-        return const Color(0xFF8B0000);
-      default:
-        return null;
-    }
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FigureItem && runtimeType == other.runtimeType && id == other.id;
 
-  Color? get colorPattern {
-    switch (this) {
-      case CardBackOption.defaultBlue:
-        return const Color(0xFF1976D2);
-      case CardBackOption.darkRed:
-        return const Color(0xFFA52A2A);
-      default:
-        return null;
-    }
-  }
+  @override
+  int get hashCode => id.hashCode;
+}
+
+class CardBackItem {
+  final String id;
+  final String displayNameKey;
+  final int? unlockLevel;
+  final String? assetPath;
+  final Color? color;
+  final Color? colorPattern;
+
+  const CardBackItem({
+    required this.id,
+    required this.displayNameKey,
+    this.unlockLevel,
+    this.assetPath,
+    this.color,
+    this.colorPattern,
+  });
+
+  bool get isImage => assetPath != null;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CardBackItem && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
