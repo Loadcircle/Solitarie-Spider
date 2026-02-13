@@ -121,5 +121,12 @@
   "streakReminderTitle": "Não quebre sua sequência!",
   "streakReminderBody": "Jogue uma partida hoje e mantenha seu progresso",
   "rewardProximityTitle": "Quase lá!",
-  "rewardProximityBody": "Falta apenas uma vitória para desbloquear"
+  "rewardProximityBody": "Falta apenas uma vitória para desbloquear",
+  "winRate": "Taxa de vitória",
+  "playStreak": "Sequência de {days} dias",
+  "@playStreak": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  }
 }

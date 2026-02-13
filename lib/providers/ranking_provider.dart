@@ -17,6 +17,14 @@ final rankingProvider = Provider<Map<Difficulty, DifficultyStats>>((ref) {
 
     final wonGames = games.where((GameResult r) => r.isWon).toList();
 
+    // Win rate: wins / (wins + meaningful losses).
+    // Abandoned games under 5 min are excluded (not counted as losses).
+    final meaningfulGames = games.where((GameResult r) =>
+        r.isWon || r.time >= const Duration(minutes: 5)).toList();
+    final double winRate = meaningfulGames.isNotEmpty
+        ? wonGames.length / meaningfulGames.length
+        : 0.0;
+
     // Fastest time: min time among WON games
     Duration? fastestTime;
     if (wonGames.isNotEmpty) {
@@ -66,6 +74,7 @@ final rankingProvider = Provider<Map<Difficulty, DifficultyStats>>((ref) {
       longestWinStreak: longestStreak,
       bestScore: bestScore,
       totalGames: games.length,
+      winRate: winRate,
     );
   }
 

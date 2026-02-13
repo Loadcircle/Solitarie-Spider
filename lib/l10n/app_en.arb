@@ -121,5 +121,12 @@
   "streakReminderTitle": "Don't break your streak!",
   "streakReminderBody": "Play a game today and keep your progress",
   "rewardProximityTitle": "Almost there!",
-  "rewardProximityBody": "One win away from unlocking a reward"
+  "rewardProximityBody": "One win away from unlocking a reward",
+  "winRate": "Win Rate",
+  "playStreak": "{days} day streak",
+  "@playStreak": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  }
 }

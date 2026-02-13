@@ -305,4 +305,12 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get rewardProximityBody => 'Falta apenas uma vitória para desbloquear';
+
+  @override
+  String get winRate => 'Taxa de vitória';
+
+  @override
+  String playStreak(int days) {
+    return 'Sequência de $days dias';
+  }
 }

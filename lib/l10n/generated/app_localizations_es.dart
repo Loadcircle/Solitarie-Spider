@@ -306,4 +306,12 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get rewardProximityBody =>
       'Te falta solo una victoria para desbloquear';
+
+  @override
+  String get winRate => 'Tasa de victoria';
+
+  @override
+  String playStreak(int days) {
+    return 'Racha de $days días';
+  }
 }

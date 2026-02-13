@@ -651,6 +651,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'One win away from unlocking a reward'**
   String get rewardProximityBody;
+
+  /// No description provided for @winRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Win Rate'**
+  String get winRate;
+
+  /// No description provided for @playStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} day streak'**
+  String playStreak(int days);
 }
 
 class _AppLocalizationsDelegate

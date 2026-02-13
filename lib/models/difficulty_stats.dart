@@ -4,6 +4,7 @@ class DifficultyStats {
   final int longestWinStreak;
   final int bestScore;
   final int totalGames;
+  final double winRate;
 
   const DifficultyStats({
     required this.fastestTime,
@@ -11,5 +12,6 @@ class DifficultyStats {
     required this.longestWinStreak,
     required this.bestScore,
     required this.totalGames,
+    required this.winRate,
   });
 }

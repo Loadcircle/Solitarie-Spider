@@ -303,4 +303,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rewardProximityBody => 'One win away from unlocking a reward';
+
+  @override
+  String get winRate => 'Win Rate';
+
+  @override
+  String playStreak(int days) {
+    return '$days day streak';
+  }
 }

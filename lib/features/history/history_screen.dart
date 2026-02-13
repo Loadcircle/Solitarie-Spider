@@ -50,6 +50,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final Map<DateTime, List<GameResult>> historyByDate =
         ref.watch(historyByDateProvider);
 
+    final int playStreak = ref.watch(playStreakProvider);
+
     final List<GameResult> selectedEvents = _selectedDay != null
         ? _getEventsForDay(_selectedDay!, historyByDate)
         : [];
@@ -125,6 +127,32 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 weekendStyle: TextStyle(color: AppTheme.secondaryText),
               ),
             ),
+            const SizedBox(height: 8),
+            if (playStreak > 0)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.local_fire_department,
+                        color: Colors.orange, size: 24),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.playStreak(playStreak),
+                      style: TextStyle(
+                        color: AppTheme.primaryText,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 8),
             Expanded(
               child: selectedEvents.isEmpty

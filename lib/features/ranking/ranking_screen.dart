@@ -110,6 +110,12 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
                   label: l10n.bestScore,
                   value: '${diffStats.bestScore}',
                 ),
+                const SizedBox(height: 8),
+                _StatCard(
+                  icon: Icons.percent,
+                  label: l10n.winRate,
+                  value: '${(diffStats.winRate * 100).toStringAsFixed(1)}%',
+                ),
               ],
             );
           }).toList(),
