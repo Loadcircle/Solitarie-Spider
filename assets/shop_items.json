@@ -8,86 +8,52 @@
       "pt": "Textura Feltro"
     },
     {
-      "id": "defaultGreen",
-      "unlockLevel": 3,
-      "gradientColors": ["0xFF1E5E2A", "0xFF174D22"],
-      "color": "0xFF1E5E2A",
-      "colorLight": "0xFF2E7D32",
-      "en": "Classic Green",
-      "es": "Verde Clásico",
-      "pt": "Verde Clássico"
-    },
-    {
-      "id": "background_ornate_felt",
-      "unlockLevel": 15,
-      "assetPath": "assets/images/backgrounds/ornate_felt.png",
-      "en": "Ornate Felt",
-      "es": "Fieltro Ornamentado",
-      "pt": "Feltro Ornamentado"
-    },
-    {
       "id": "background_dark_felt",
-      "unlockLevel": 0,
+      "unlockLevel": 3,
       "assetPath": "assets/images/backgrounds/dark_felt.jpg",
       "en": "Dark Felt",
       "es": "Fieltro Oscuro",
       "pt": "Feltro Escuro"
     },
     {
-      "id": "background_future_cube",
-      "unlockLevel": 0,
-      "assetPath": "assets/images/backgrounds/cube_future.jpg",
-      "en": "Future Cube",
-      "es": "Cubo Futurista",
-      "pt": "Cubo Futurista"
-    },
-    {
-      "id": "background_classic_red",
-      "unlockLevel": 0,
-      "assetPath": "assets/images/backgrounds/classic_red_line.jpg",
-      "en": "Classic Red",
-      "es": "Rojo Clásico",
-      "pt": "Vermelho Clássico"
-    },
-    {
       "id": "background_red_felt",
-      "unlockLevel": 0,
+      "unlockLevel": 5,
       "assetPath": "assets/images/backgrounds/red_felt.jpg",
       "en": "Red Felt",
       "es": "Fieltro Rojo",
       "pt": "Feltro Vermelho"
     },
     {
-      "id": "background_long_ornament",
-      "unlockLevel": 0,
-      "assetPath": "assets/images/backgrounds/long_ornament.png",
-      "en": "Ornate Garden",
-      "es": "Jardín Ornamentado",
-      "pt": "Jardim Ornamentado"
+      "id": "background_ornate_felt",
+      "unlockLevel": 10,
+      "assetPath": "assets/images/backgrounds/ornate_felt.png",
+      "en": "Ornate Felt",
+      "es": "Fieltro Ornamentado",
+      "pt": "Feltro Ornamentado"
     },
     {
-      "id": "background_blue_space",
-      "unlockLevel": 0,
-      "assetPath": "assets/images/backgrounds/blue_space.png",
-      "en": "Cosmic Frame",
-      "es": "Marco Cósmico",
-      "pt": "Moldura Cósmica"
+      "id": "background_magic_green",
+      "unlockLevel": 14,
+      "assetPath": "assets/images/backgrounds/magic_green.png",
+      "en": "Emerald Magic",
+      "es": "Magia Esmeralda",
+      "pt": "Magia Esmeralda"
     },
     {
       "id": "background_green_samurai",
-      "unlockLevel": 0,
+      "unlockLevel": 18,
       "assetPath": "assets/images/backgrounds/green_samurai.png",
       "en": "Samurai Garden",
       "es": "Jardín Samurái",
       "pt": "Jardim Samurai"
     },
     {
-      "id": "background_magic_green",
-      "unlockLevel": 0,
-      "assetPath": "assets/images/backgrounds/magic_green.png",
-      "en": "Emerald Magic",
-      "es": "Magia Esmeralda",
-      "pt": "Magia Esmeralda"
+      "id": "background_blue_space",
+      "unlockLevel": 22,
+      "assetPath": "assets/images/backgrounds/blue_space.png",
+      "en": "Cosmic Frame",
+      "es": "Marco Cósmico",
+      "pt": "Moldura Cósmica"
     }
   ],
   "cardBacks": [
@@ -108,17 +74,16 @@
       "pt": "Azul Clássico"
     },
     {
-      "id": "card_dark_red",
-      "unlockLevel": 5,
-      "color": "0xFF8B0000",
-      "colorPattern": "0xFFA52A2A",
-      "en": "Dark Red",
-      "es": "Rojo Oscuro",
-      "pt": "Vermelho Escuro"
+      "id": "card_spider_royale",
+      "unlockLevel": 6,
+      "assetPath": "assets/images/cards/spider_royale.png",
+      "en": "Royal Web",
+      "es": "Red Real",
+      "pt": "Teia Real"
     },
     {
       "id": "card_royal_spade",
-      "unlockLevel": 20,
+      "unlockLevel": 9,
       "assetPath": "assets/images/cards/royal_spade.png",
       "en": "Royal Spade",
       "es": "Pica Real",
@@ -126,7 +91,7 @@
     },
     {
       "id": "card_samurai_royal",
-      "unlockLevel": 0,
+      "unlockLevel": 16,
       "assetPath": "assets/images/cards/samurai.png",
       "en": "Samurai Honor",
       "es": "Honor del Samurái",
@@ -134,25 +99,25 @@
     },
     {
       "id": "card_cosmic_voyager",
-      "unlockLevel": 0,
+      "unlockLevel": 20,
       "assetPath": "assets/images/cards/gold_space.png",
       "en": "Cosmic Voyager",
       "es": "Viajero Cósmico",
       "pt": "Viajante Cósmico"
-    },
-    {
-      "id": "card_spider_royale",
-      "unlockLevel": 0,
-      "assetPath": "assets/images/cards/spider_royale.png",
-      "en": "Royal Web",
-      "es": "Red Real",
-      "pt": "Teia Real"
     }
   ],
   "figures": [
     {
+      "id": "original_pack",
+      "folder_path": "assets/images/figures/original",
+      "en": "Original",
+      "es": "Original",
+      "pt": "Original"
+    },
+    {
       "id": "elegant_pack",
       "folder_path": "assets/images/figures/elegant",
+      "unlockLevel": 8,
       "en": "Elegant",
       "es": "Elegante",
       "pt": "Elegante"
@@ -160,6 +125,7 @@
     {
       "id": "royal_pack",
       "folder_path": "assets/images/figures/royal",
+      "unlockLevel": 13,
       "en": "Royal",
       "es": "Real",
       "pt": "Real"
@@ -167,6 +133,7 @@
     {
       "id": "samurai_pack",
       "folder_path": "assets/images/figures/samurai",
+      "unlockLevel": 21,
       "en": "Samurai",
       "es": "Samurái",
       "pt": "Samurai"

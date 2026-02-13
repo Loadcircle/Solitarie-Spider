@@ -89,7 +89,7 @@ class _TableauColumnState extends State<TableauColumn> {
       builder: (context, candidateData, rejectedData) {
         return SizedBox(
           width: widget.cardWidth,
-          height: totalHeight,
+          height: totalHeight + cardHeight * 0.5,
           child: Stack(
             children: [
               for (var i = 0; i < widget.cards.length; i++)

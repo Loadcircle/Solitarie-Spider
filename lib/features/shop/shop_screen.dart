@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/constants/card_dimensions.dart';
 import '../../core/constants/shop_registry.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/gradient_background.dart';
@@ -39,6 +40,8 @@ class ShopScreen extends ConsumerWidget {
                     isSelected: settings.selectedBackground == option,
                     isUnlocked: playerNotifier.isItemUnlocked(option),
                     requiredLevel: ShopRegistry.requiredLevelFor(option),
+                    onLongPress: () =>
+                        _showBackgroundPreview(context, option),
                     onTap: () {
                       if (playerNotifier.isItemUnlocked(option)) {
                         ref
@@ -72,6 +75,8 @@ class ShopScreen extends ConsumerWidget {
                     isSelected: settings.selectedCardBack == option,
                     isUnlocked: playerNotifier.isItemUnlocked(option),
                     requiredLevel: ShopRegistry.requiredLevelFor(option),
+                    onLongPress: () =>
+                        _showCardBackPreview(context, option),
                     onTap: () {
                       if (playerNotifier.isItemUnlocked(option)) {
                         ref
@@ -153,6 +158,7 @@ class _BackgroundTile extends StatelessWidget {
     required this.isUnlocked,
     required this.requiredLevel,
     required this.onTap,
+    this.onLongPress,
   });
 
   final BackgroundItem option;
@@ -160,11 +166,13 @@ class _BackgroundTile extends StatelessWidget {
   final bool isUnlocked;
   final int? requiredLevel;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -209,6 +217,7 @@ class _CardBackTile extends StatelessWidget {
     required this.isUnlocked,
     required this.requiredLevel,
     required this.onTap,
+    this.onLongPress,
   });
 
   final CardBackItem option;
@@ -216,11 +225,13 @@ class _CardBackTile extends StatelessWidget {
   final bool isUnlocked;
   final int? requiredLevel;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -380,6 +391,169 @@ class _TileCheckMark extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showBackgroundPreview(BuildContext context, BackgroundItem option) {
+  final String name = ShopRegistry.resolveName(
+    option.id,
+    Localizations.localeOf(context).languageCode,
+  );
+  showDialog<void>(
+    context: context,
+    barrierColor: Colors.black87,
+    builder: (BuildContext ctx) {
+      return GestureDetector(
+        onTap: () => Navigator.pop(ctx),
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: FractionallySizedBox(
+            widthFactor: 0.8,
+            child: AspectRatio(
+              aspectRatio: 9 / 16,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black45,
+                      blurRadius: 24,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (option.isImage)
+                        Image.asset(option.assetPath!, fit: BoxFit.fill)
+                      else if (option.isGradient)
+                        Container(
+                          decoration:
+                              BoxDecoration(gradient: option.gradient),
+                        )
+                      else
+                        Container(color: option.color),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          color: Colors.black54,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 12,
+                          ),
+                          child: Text(
+                            name,
+                            style: TextStyle(
+                              color: AppTheme.primaryText,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void _showCardBackPreview(BuildContext context, CardBackItem option) {
+  final String name = ShopRegistry.resolveName(
+    option.id,
+    Localizations.localeOf(context).languageCode,
+  );
+  showDialog<void>(
+    context: context,
+    barrierColor: Colors.black87,
+    builder: (BuildContext ctx) {
+      return GestureDetector(
+        onTap: () => Navigator.pop(ctx),
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FractionallySizedBox(
+                widthFactor: 0.55,
+                child: AspectRatio(
+                  aspectRatio: CardDimensions.cardAspectRatio,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(
+                        CardDimensions.borderRadius * 3,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black45,
+                          blurRadius: 24,
+                          spreadRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        CardDimensions.borderRadius * 3,
+                      ),
+                      child: option.isImage
+                          ? Image.asset(option.assetPath!, fit: BoxFit.fill)
+                          : Container(
+                              color: option.color,
+                              child: Center(
+                                child: Container(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  margin: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      CardDimensions.borderRadius * 2,
+                                    ),
+                                    border: Border.all(
+                                      color: option.colorPattern!,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '\u2660',
+                                      style: TextStyle(
+                                        color: option.colorPattern,
+                                        fontSize: 64,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                name,
+                style: TextStyle(
+                  color: AppTheme.primaryText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class _LockedOverlay extends StatelessWidget {

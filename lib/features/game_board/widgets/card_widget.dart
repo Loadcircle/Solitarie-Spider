@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/enums/rank.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/card_dimensions.dart';
@@ -36,13 +37,14 @@ class CardWidget extends StatelessWidget {
     final cardHeight = CardDimensions.cardHeight(cardWidth);
     final isRed = card.suit.isRed;
     final color = isRed ? AppTheme.redSuit : AppTheme.blackSuit;
-    final rankFontSize = cardWidth * 0.45;
+    final rankFontSize = cardWidth * 0.55;
     final suitFontSize = cardWidth * 0.35;
     final String? figPath = _figurePath();
 
     return Container(
       width: cardWidth,
       height: cardHeight,
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: AppTheme.cardWhite,
         borderRadius: BorderRadius.circular(CardDimensions.borderRadius),
@@ -56,7 +58,7 @@ class CardWidget extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(cardWidth * 0.06),
+        padding: EdgeInsets.only(left: cardWidth * 0.04, top: cardWidth * 0.03),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -69,21 +71,23 @@ class CardWidget extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       card.rank.symbol,
-                      style: TextStyle(
+                      style: GoogleFonts.libreBaskerville(
                         color: color,
                         fontSize: rankFontSize,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
                         height: 1.0,
                       ),
                     ),
                   ),
                 ),
-                Text(
-                  card.suit.symbol,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: suitFontSize,
-                    height: 1.0,
+                ColorFiltered(
+                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                  child: Text(
+                    card.suit.symbol,
+                    style: TextStyle(
+                      fontSize: suitFontSize,
+                      height: 1.0,
+                    ),
                   ),
                 ),
               ],
@@ -108,12 +112,14 @@ class CardWidget extends StatelessWidget {
               const Spacer(),
               Align(
                 alignment: Alignment.center,
-                child: Text(
-                  card.suit.symbol,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: rankFontSize * 1.5,
-                    height: 1.0,
+                child: ColorFiltered(
+                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                  child: Text(
+                    card.suit.symbol,
+                    style: TextStyle(
+                      fontSize: rankFontSize * 1.5,
+                      height: 1.0,
+                    ),
                   ),
                 ),
               ),

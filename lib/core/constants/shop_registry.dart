@@ -32,9 +32,9 @@ class ShopRegistry {
   );
 
   static const FigureItem defaultFigure = FigureItem(
-    id: 'figure_king',
-    displayNameKey: 'figure_king',
-    folderPath: 'assets/images/figures/elegant',
+    id: 'original_pack',
+    displayNameKey: 'original_pack',
+    folderPath: 'assets/images/figures/original',
   );
 
   // ─── Init (call once in main before runApp) ───

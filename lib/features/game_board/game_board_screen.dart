@@ -266,8 +266,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
         final colPos = colBox.localToGlobal(Offset.zero);
         cardWidth ??= colBox.size.width;
         final cHeight = CardDimensions.cardHeight(colBox.size.width);
-        // Target = bottom of column minus card height (where the last card is)
-        final targetY = colPos.dy + colBox.size.height - cHeight;
+        // Target = bottom of column minus card height, excluding the extra drop-target padding
+        final targetY = colPos.dy + colBox.size.height - cHeight - cHeight * 0.5;
         targets.add(Offset(colPos.dx, targetY));
       } else {
         targets.add(stockPos);

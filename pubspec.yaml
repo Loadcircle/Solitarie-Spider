@@ -34,6 +34,7 @@ flutter:
     - assets/images/backgrounds/
     - assets/images/cards/
     - assets/images/figures/
+    - assets/images/figures/original/
     - assets/images/figures/elegant/
     - assets/images/figures/royal/
     - assets/images/figures/samurai/
