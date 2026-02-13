@@ -180,6 +180,19 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
     Overlay.of(context).insert(_introOverlay!);
   }
 
+  void _checkGameOver() {
+    final gameState = ref.read(gameProvider);
+    if (gameState == null || gameState.isWon || _hasShownLoseDialog) return;
+    final settings = ref.read(settingsProvider);
+    if (GameOverDetector.isGameOver(gameState,
+        allowDealWithEmptyColumns: settings.allowDealWithEmptyColumns)) {
+      _hasShownLoseDialog = true;
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) _showLoseDialog();
+      });
+    }
+  }
+
   void _playSound(GameSound sound) {
     if (!ref.read(settingsProvider).soundEnabled) return;
     ref.read(soundServiceProvider).play(sound);
@@ -202,6 +215,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
       } else {
         _playSound(GameSound.cardMove);
       }
+      _checkGameOver();
     }
   }
 
@@ -268,6 +282,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startDealAnimation(stockPos, stockSize, dealtCards);
     });
+
+    _checkGameOver();
   }
 
   void _startDealAnimation(
@@ -528,6 +544,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
           stateBefore: stateBefore!,
         );
       }
+      _checkGameOver();
     } else {
       _playSound(GameSound.invalidMove);
       // Trigger shake animation
@@ -757,18 +774,6 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
       _hasShownWinDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showWinDialog();
-      });
-    }
-
-    // Check for loss
-    if (_initialized &&
-        !gameState.isWon &&
-        !_hasShownLoseDialog &&
-        GameOverDetector.isGameOver(gameState,
-            allowDealWithEmptyColumns: settings.allowDealWithEmptyColumns)) {
-      _hasShownLoseDialog = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showLoseDialog();
       });
     }
 

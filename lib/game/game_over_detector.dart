@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../models/game_state.dart';
 import '../models/playing_card.dart';
 import 'move_validator.dart';
@@ -6,10 +7,6 @@ class GameOverDetector {
   GameOverDetector._();
 
   /// Returns true if the game is lost: no useful actions remaining.
-  ///
-  /// Accounts for:
-  /// - Whether stock can actually be dealt (empty columns may block it)
-  /// - Whether moves to empty columns are useful (expose face-down cards)
   static bool isGameOver(
     GameState state, {
     bool allowDealWithEmptyColumns = false,
@@ -17,18 +14,36 @@ class GameOverDetector {
     if (state.isWon) return false;
 
     final tableau = state.tableau;
-    final bool hasEmptyColumn = tableau.any((List<PlayingCard> col) => col.isEmpty);
+    final bool hasEmptyColumn =
+        tableau.any((List<PlayingCard> col) => col.isEmpty);
 
-    // Check if the player can deal from stock
+    // If stock is available and can be dealt, never game over
     if (state.stock.isNotEmpty) {
-      final bool canDeal =
-          allowDealWithEmptyColumns || !hasEmptyColumn;
+      final bool canDeal = allowDealWithEmptyColumns || !hasEmptyColumn;
       if (canDeal) return false;
+
+      // Stock exists but blocked by empty columns
+      // Check if any move can fill an empty column to unblock dealing
+      for (var i = 0; i < tableau.length; i++) {
+        final column = tableau[i];
+        for (var j = 0; j < column.length; j++) {
+          if (!column[j].isFaceUp) continue;
+          final cards = column.sublist(j);
+          if (!MoveValidator.canPickUp(cards)) continue;
+
+          final topCard = cards.first;
+          for (var k = 0; k < tableau.length; k++) {
+            if (k == i) continue;
+            if (!MoveValidator.canDrop(topCard, tableau[k])) continue;
+            return false;
+          }
+        }
+      }
+
+      return true;
     }
 
-    // Stock is empty or dealing is blocked — check for valid moves
-    final bool hasStock = state.stock.isNotEmpty;
-
+    // ── No stock left — check for moves that make real progress ──
     for (var i = 0; i < tableau.length; i++) {
       final column = tableau[i];
       for (var j = 0; j < column.length; j++) {
@@ -38,28 +53,53 @@ class GameOverDetector {
         if (!MoveValidator.canPickUp(cards)) continue;
 
         final topCard = cards.first;
+        final bool exposesHidden = j > 0 && !column[j - 1].isFaceUp;
+        final bool emptiesColumn = j == 0;
+
         for (var k = 0; k < tableau.length; k++) {
           if (k == i) continue;
           if (!MoveValidator.canDrop(topCard, tableau[k])) continue;
 
-          // Move to non-empty column → always useful
-          if (tableau[k].isNotEmpty) return false;
+          // 1. Exposes a face-down card → always useful
+          if (exposesHidden) return false;
 
-          // Move to empty column — is it useful?
-          if (hasStock) {
-            // Stock exists but can't deal yet: filling an empty column
-            // helps toward enabling a deal
-            return false;
+          // 2. Empties the source column → useful (reorganization)
+          if (emptiesColumn && tableau[k].isNotEmpty) return false;
+
+          // 3. Same-suit consolidation that IMPROVES the board
+          if (tableau[k].isNotEmpty) {
+            final targetTop = tableau[k].last;
+            if (targetTop.suit == topCard.suit) {
+              // Check if this card was already same-suit connected below it
+              // in the source column. If so, moving is just relocating.
+              final bool alreadyConnected = j > 0 &&
+                  column[j - 1].isFaceUp &&
+                  column[j - 1].suit == topCard.suit &&
+                  column[j - 1].rank.value == topCard.rank.value + 1;
+
+              if (!alreadyConnected) {
+                // TODO: remove debug print
+                debugPrint('[GameOver] => NOT over: ${_seqDesc(cards)} '
+                    'col$i -> col$k IMPROVES same-suit sequence '
+                    '(onto ${_cardDesc(targetTop)})');
+                return false;
+              }
+            }
           }
-
-          // Stock is empty: only useful if it exposes a face-down card
-          final bool exposesHiddenCard =
-              j > 0 && !column[j - 1].isFaceUp;
-          if (exposesHiddenCard) return false;
         }
       }
     }
 
     return true;
+  }
+
+  static String _cardDesc(PlayingCard c) =>
+      '${c.rank.name}${c.suit.name[0]}';
+
+  static String _seqDesc(List<PlayingCard> cards) {
+    final top = cards.first;
+    final bottom = cards.last;
+    if (cards.length == 1) return _cardDesc(top);
+    return '${_cardDesc(top)}..${_cardDesc(bottom)}(${cards.length})';
   }
 }
