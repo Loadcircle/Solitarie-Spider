@@ -112,5 +112,14 @@
   "figures": "Figuras",
   "undo": "Deshacer",
   "undoEnabled": "Botón deshacer",
-  "undoEnabledDescription": "Mostrar botón para deshacer el último movimiento"
+  "undoEnabledDescription": "Mostrar botón para deshacer el último movimiento",
+  "notifications": "Notificaciones",
+  "streakReminder": "Recordatorio diario",
+  "streakReminderDescription": "Recordarme jugar si no lo he hecho hoy",
+  "rewardAlert": "Alertas de recompensa",
+  "rewardAlertDescription": "Notificar cuando esté cerca de desbloquear",
+  "streakReminderTitle": "¡No pierdas tu racha!",
+  "streakReminderBody": "Juega una partida hoy y mantén tu progreso",
+  "rewardProximityTitle": "¡Ya casi!",
+  "rewardProximityBody": "Te falta solo una victoria para desbloquear"
 }

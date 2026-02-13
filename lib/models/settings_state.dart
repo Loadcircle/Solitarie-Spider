@@ -18,6 +18,8 @@ class SettingsState {
   final BackgroundItem selectedBackground;
   final CardBackItem selectedCardBack;
   final FigureItem selectedFigure;
+  final bool streakReminderEnabled;
+  final bool rewardAlertEnabled;
 
   const SettingsState({
     this.defaultDifficulty = Difficulty.oneSuit,
@@ -34,6 +36,8 @@ class SettingsState {
     this.selectedBackground = ShopRegistry.defaultBackground,
     this.selectedCardBack = ShopRegistry.defaultCardBack,
     this.selectedFigure = ShopRegistry.defaultFigure,
+    this.streakReminderEnabled = true,
+    this.rewardAlertEnabled = true,
   });
 
   SettingsState copyWith({
@@ -51,6 +55,8 @@ class SettingsState {
     BackgroundItem? selectedBackground,
     CardBackItem? selectedCardBack,
     FigureItem? selectedFigure,
+    bool? streakReminderEnabled,
+    bool? rewardAlertEnabled,
   }) {
     return SettingsState(
       defaultDifficulty: defaultDifficulty ?? this.defaultDifficulty,
@@ -68,6 +74,9 @@ class SettingsState {
       selectedBackground: selectedBackground ?? this.selectedBackground,
       selectedCardBack: selectedCardBack ?? this.selectedCardBack,
       selectedFigure: selectedFigure ?? this.selectedFigure,
+      streakReminderEnabled:
+          streakReminderEnabled ?? this.streakReminderEnabled,
+      rewardAlertEnabled: rewardAlertEnabled ?? this.rewardAlertEnabled,
     );
   }
 }

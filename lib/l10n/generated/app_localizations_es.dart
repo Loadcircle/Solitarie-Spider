@@ -276,4 +276,34 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get undoEnabledDescription =>
       'Mostrar botón para deshacer el último movimiento';
+
+  @override
+  String get notifications => 'Notificaciones';
+
+  @override
+  String get streakReminder => 'Recordatorio diario';
+
+  @override
+  String get streakReminderDescription =>
+      'Recordarme jugar si no lo he hecho hoy';
+
+  @override
+  String get rewardAlert => 'Alertas de recompensa';
+
+  @override
+  String get rewardAlertDescription =>
+      'Notificar cuando esté cerca de desbloquear';
+
+  @override
+  String get streakReminderTitle => '¡No pierdas tu racha!';
+
+  @override
+  String get streakReminderBody => 'Juega una partida hoy y mantén tu progreso';
+
+  @override
+  String get rewardProximityTitle => '¡Ya casi!';
+
+  @override
+  String get rewardProximityBody =>
+      'Te falta solo una victoria para desbloquear';
 }

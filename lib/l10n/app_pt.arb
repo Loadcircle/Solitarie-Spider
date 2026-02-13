@@ -112,5 +112,14 @@
   "figures": "Figuras",
   "undo": "Desfazer",
   "undoEnabled": "Botão desfazer",
-  "undoEnabledDescription": "Mostrar botão para desfazer o último movimento"
+  "undoEnabledDescription": "Mostrar botão para desfazer o último movimento",
+  "notifications": "Notificações",
+  "streakReminder": "Lembrete diário",
+  "streakReminderDescription": "Lembrar-me de jogar se não joguei hoje",
+  "rewardAlert": "Alertas de recompensa",
+  "rewardAlertDescription": "Notificar quando perto de desbloquear",
+  "streakReminderTitle": "Não quebre sua sequência!",
+  "streakReminderBody": "Jogue uma partida hoje e mantenha seu progresso",
+  "rewardProximityTitle": "Quase lá!",
+  "rewardProximityBody": "Falta apenas uma vitória para desbloquear"
 }

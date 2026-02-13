@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/enums/difficulty.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/gradient_background.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -280,6 +282,97 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () =>
                   _showLanguageDialog(context, ref, l10n, settings),
             ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                l10n.notifications,
+                style: TextStyle(
+                  color: AppTheme.secondaryText,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            SwitchListTile(
+              title: Text(
+                l10n.streakReminder,
+                style: TextStyle(color: AppTheme.primaryText),
+              ),
+              subtitle: Text(
+                l10n.streakReminderDescription,
+                style: TextStyle(color: AppTheme.secondaryText),
+              ),
+              value: settings.streakReminderEnabled,
+              onChanged: (_) => notifier.toggleStreakReminder(
+                title: l10n.streakReminderTitle,
+                body: l10n.streakReminderBody,
+              ),
+            ),
+            SwitchListTile(
+              title: Text(
+                l10n.rewardAlert,
+                style: TextStyle(color: AppTheme.primaryText),
+              ),
+              subtitle: Text(
+                l10n.rewardAlertDescription,
+                style: TextStyle(color: AppTheme.secondaryText),
+              ),
+              value: settings.rewardAlertEnabled,
+              onChanged: (_) => notifier.toggleRewardAlert(),
+            ),
+            if (kDebugMode) ...[
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'DEBUG',
+                  style: TextStyle(
+                    color: Colors.red.shade300,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              ListTile(
+                leading: Icon(Icons.notifications_active,
+                    color: Colors.orange.shade300),
+                title: Text(
+                  'Test streak notification (now)',
+                  style: TextStyle(color: AppTheme.primaryText),
+                ),
+                onTap: () {
+                  NotificationService.instance.showNow(
+                    id: 9001,
+                    title: l10n.streakReminderTitle,
+                    body: l10n.streakReminderBody,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Streak notification fired!')),
+                  );
+                },
+              ),
+              ListTile(
+                leading:
+                    Icon(Icons.card_giftcard, color: Colors.orange.shade300),
+                title: Text(
+                  'Test reward notification (now)',
+                  style: TextStyle(color: AppTheme.primaryText),
+                ),
+                onTap: () {
+                  NotificationService.instance.showNow(
+                    id: 9002,
+                    title: l10n.rewardProximityTitle,
+                    body: l10n.rewardProximityBody,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Reward notification fired!')),
+                  );
+                },
+              ),
+            ],
           ],
         ),
       ),

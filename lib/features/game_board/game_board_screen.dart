@@ -13,6 +13,7 @@ import '../../models/settings_state.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/timer_provider.dart';
 import '../../providers/history_provider.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/services/sound_service.dart';
 import '../../providers/sound_service_provider.dart';
 import '../../core/constants/xp_config.dart';
@@ -108,6 +109,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
       ref.read(gameProvider.notifier).startNewGame(difficulty);
       ref.read(timerProvider.notifier).start();
       _hasShownWinDialog = false;
+      NotificationService.instance.markPlayedToday();
 
       // Launch intro animation; _initialized deferred to onComplete
       _isAnimatingIntro = true;

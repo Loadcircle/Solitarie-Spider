@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/shop_registry.dart';
 import '../core/enums/difficulty.dart';
+import '../core/services/notification_service.dart';
 import '../models/settings_state.dart';
 import '../models/shop_item.dart';
 
@@ -16,6 +17,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _keyBackground = 'selectedBackground';
   static const _keyCardBack = 'selectedCardBack';
   static const _keyFigure = 'selectedFigure';
+  static const _keyStreakReminder = 'streakReminderEnabled';
+  static const _keyRewardAlert = 'rewardAlertEnabled';
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -37,12 +40,17 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
         ? ShopRegistry.figureById(figName)
         : ShopRegistry.defaultFigure;
 
+    final bool streakReminder = prefs.getBool(_keyStreakReminder) ?? true;
+    final bool rewardAlert = prefs.getBool(_keyRewardAlert) ?? true;
+
     state = state.copyWith(
       hasSelectedLanguage: hasSelected && localeCode != null ? true : null,
       locale: hasSelected && localeCode != null ? Locale(localeCode) : null,
       selectedBackground: bg,
       selectedCardBack: cb,
       selectedFigure: fig,
+      streakReminderEnabled: streakReminder,
+      rewardAlertEnabled: rewardAlert,
       isLoading: false,
     );
   }
@@ -75,6 +83,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   void setLocale(Locale locale) {
     state = state.copyWith(locale: locale);
     _saveLanguagePrefs();
+    // Notification text depends on locale — re-scheduling is handled by the
+    // caller (UI) which has access to AppLocalizations.
   }
 
   void toggleAllowDealWithEmptyColumns() {
@@ -117,6 +127,34 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   void setFigure(FigureItem option) {
     state = state.copyWith(selectedFigure: option);
     _saveShopPrefs();
+  }
+
+  Future<void> toggleStreakReminder({
+    required String title,
+    required String body,
+  }) async {
+    final bool newValue = !state.streakReminderEnabled;
+    state = state.copyWith(streakReminderEnabled: newValue);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyStreakReminder, newValue);
+
+    final NotificationService ns = NotificationService.instance;
+    if (newValue) {
+      await ns.scheduleDailyStreak(title: title, body: body);
+    } else {
+      await ns.cancelDailyStreak();
+    }
+  }
+
+  Future<void> toggleRewardAlert() async {
+    final bool newValue = !state.rewardAlertEnabled;
+    state = state.copyWith(rewardAlertEnabled: newValue);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyRewardAlert, newValue);
+
+    if (!newValue) {
+      await NotificationService.instance.cancelRewardProximity();
+    }
   }
 
   /// Reset selections to defaults if the current items are locked at [playerLevel].

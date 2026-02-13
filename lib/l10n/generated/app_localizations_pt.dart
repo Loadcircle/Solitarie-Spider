@@ -276,4 +276,33 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get undoEnabledDescription =>
       'Mostrar botão para desfazer o último movimento';
+
+  @override
+  String get notifications => 'Notificações';
+
+  @override
+  String get streakReminder => 'Lembrete diário';
+
+  @override
+  String get streakReminderDescription =>
+      'Lembrar-me de jogar se não joguei hoje';
+
+  @override
+  String get rewardAlert => 'Alertas de recompensa';
+
+  @override
+  String get rewardAlertDescription => 'Notificar quando perto de desbloquear';
+
+  @override
+  String get streakReminderTitle => 'Não quebre sua sequência!';
+
+  @override
+  String get streakReminderBody =>
+      'Jogue uma partida hoje e mantenha seu progresso';
+
+  @override
+  String get rewardProximityTitle => 'Quase lá!';
+
+  @override
+  String get rewardProximityBody => 'Falta apenas uma vitória para desbloquear';
 }

@@ -274,4 +274,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get undoEnabledDescription =>
       'Show undo button to revert the last move';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get streakReminder => 'Daily reminder';
+
+  @override
+  String get streakReminderDescription =>
+      'Remind me to play if I haven\'t today';
+
+  @override
+  String get rewardAlert => 'Reward alerts';
+
+  @override
+  String get rewardAlertDescription =>
+      'Notify when close to unlocking a reward';
+
+  @override
+  String get streakReminderTitle => 'Don\'t break your streak!';
+
+  @override
+  String get streakReminderBody => 'Play a game today and keep your progress';
+
+  @override
+  String get rewardProximityTitle => 'Almost there!';
+
+  @override
+  String get rewardProximityBody => 'One win away from unlocking a reward';
 }

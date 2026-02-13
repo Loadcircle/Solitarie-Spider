@@ -112,5 +112,14 @@
   "figures": "Figures",
   "undo": "Undo",
   "undoEnabled": "Undo button",
-  "undoEnabledDescription": "Show undo button to revert the last move"
+  "undoEnabledDescription": "Show undo button to revert the last move",
+  "notifications": "Notifications",
+  "streakReminder": "Daily reminder",
+  "streakReminderDescription": "Remind me to play if I haven't today",
+  "rewardAlert": "Reward alerts",
+  "rewardAlertDescription": "Notify when close to unlocking a reward",
+  "streakReminderTitle": "Don't break your streak!",
+  "streakReminderBody": "Play a game today and keep your progress",
+  "rewardProximityTitle": "Almost there!",
+  "rewardProximityBody": "One win away from unlocking a reward"
 }

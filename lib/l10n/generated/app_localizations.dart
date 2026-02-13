@@ -597,6 +597,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show undo button to revert the last move'**
   String get undoEnabledDescription;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @streakReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get streakReminder;
+
+  /// No description provided for @streakReminderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me to play if I haven\'t today'**
+  String get streakReminderDescription;
+
+  /// No description provided for @rewardAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward alerts'**
+  String get rewardAlert;
+
+  /// No description provided for @rewardAlertDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify when close to unlocking a reward'**
+  String get rewardAlertDescription;
+
+  /// No description provided for @streakReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t break your streak!'**
+  String get streakReminderTitle;
+
+  /// No description provided for @streakReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a game today and keep your progress'**
+  String get streakReminderBody;
+
+  /// No description provided for @rewardProximityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost there!'**
+  String get rewardProximityTitle;
+
+  /// No description provided for @rewardProximityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One win away from unlocking a reward'**
+  String get rewardProximityBody;
 }
 
 class _AppLocalizationsDelegate
