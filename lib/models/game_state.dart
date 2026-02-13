@@ -11,6 +11,7 @@ class GameState {
   final Difficulty difficulty;
   final bool isWon;
   final bool isStarted;
+  final bool canUndo;
   final List<({int column, List<PlayingCard> cards})> removedSequences;
 
   const GameState({
@@ -23,6 +24,7 @@ class GameState {
     required this.difficulty,
     this.isWon = false,
     this.isStarted = false,
+    this.canUndo = false,
     this.removedSequences = const [],
   });
 
@@ -36,6 +38,7 @@ class GameState {
     Difficulty? difficulty,
     bool? isWon,
     bool? isStarted,
+    bool? canUndo,
     List<({int column, List<PlayingCard> cards})>? removedSequences,
   }) {
     return GameState(
@@ -48,6 +51,7 @@ class GameState {
       difficulty: difficulty ?? this.difficulty,
       isWon: isWon ?? this.isWon,
       isStarted: isStarted ?? this.isStarted,
+      canUndo: canUndo ?? this.canUndo,
       removedSequences: removedSequences ?? this.removedSequences,
     );
   }

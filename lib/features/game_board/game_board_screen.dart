@@ -38,7 +38,8 @@ class GameBoardScreen extends ConsumerStatefulWidget {
   ConsumerState<GameBoardScreen> createState() => _GameBoardScreenState();
 }
 
-class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
+class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
+    with WidgetsBindingObserver {
   bool _hasShownWinDialog = false;
   bool _hasShownLoseDialog = false;
   bool _initialized = false;
@@ -73,10 +74,29 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _soundService = ref.read(soundServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initGame();
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final gameState = ref.read(gameProvider);
+    if (gameState == null || gameState.isWon) return;
+
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      ref.read(timerProvider.notifier).stop();
+      _soundService.stopBackgroundMusic();
+    } else if (state == AppLifecycleState.resumed) {
+      ref.read(timerProvider.notifier).resume();
+      final settings = ref.read(settingsProvider);
+      if (settings.musicEnabled) {
+        _soundService.startBackgroundMusic();
+      }
+    }
   }
 
   void _initGame() {
@@ -393,6 +413,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _introOverlay?.remove();
     _introOverlay = null;
     _dealOverlay?.remove();
@@ -416,6 +437,14 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
           moves: state.moveCount,
           isWon: false,
         ));
+  }
+
+  void _onUndo() {
+    if (_isAnimatingDeal || _isAnimatingIntro || _isAnimatingAutoMove || _isAnimatingSequence) return;
+    final gameState = ref.read(gameProvider);
+    if (gameState == null || !gameState.canUndo) return;
+    ref.read(gameProvider.notifier).undo();
+    _playSound(GameSound.cardMove);
   }
 
   void _onPause() {
@@ -776,11 +805,27 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen> {
                 ),
               ),
             ),
-            CompletedArea(
-              key: _completedAreaKey,
-              completedSequences: gameState.completedSequences,
-              cardWidth: cardWidth,
-              slotKeys: _slotKeys,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (settings.undoEnabled)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12, bottom: 4),
+                      child: _UndoButton(
+                        canUndo: gameState.canUndo && !gameState.isWon,
+                        onPressed: _onUndo,
+                      ),
+                    ),
+                  ),
+                CompletedArea(
+                  key: _completedAreaKey,
+                  completedSequences: gameState.completedSequences,
+                  cardWidth: cardWidth,
+                  slotKeys: _slotKeys,
+                ),
+              ],
             ),
           ],
         );
@@ -1401,6 +1446,44 @@ class _IntroCardBackState extends State<_IntroCardBack>
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _UndoButton extends StatelessWidget {
+  const _UndoButton({
+    required this.canUndo,
+    required this.onPressed,
+  });
+
+  final bool canUndo;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: canUndo ? onPressed : null,
+      child: AnimatedOpacity(
+        opacity: canUndo ? 1.0 : 0.35,
+        duration: const Duration(milliseconds: 200),
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF3A4A3E), Color(0xFF2A3530)],
+            ),
+            border: Border.all(color: const Color(0xFF4A5A4E)),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+            ],
+          ),
+          child: const Icon(Icons.undo, color: Colors.white, size: 20),
+        ),
       ),
     );
   }

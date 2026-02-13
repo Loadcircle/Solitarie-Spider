@@ -266,4 +266,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get figures => 'Figuras';
+
+  @override
+  String get undo => 'Deshacer';
+
+  @override
+  String get undoEnabled => 'Botón deshacer';
+
+  @override
+  String get undoEnabledDescription =>
+      'Mostrar botón para deshacer el último movimiento';
 }

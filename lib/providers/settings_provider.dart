@@ -91,6 +91,10 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = state.copyWith(tapToAutoMove: !state.tapToAutoMove);
   }
 
+  void toggleUndo() {
+    state = state.copyWith(undoEnabled: !state.undoEnabled);
+  }
+
   void toggleMusic() {
     state = state.copyWith(musicEnabled: !state.musicEnabled);
   }

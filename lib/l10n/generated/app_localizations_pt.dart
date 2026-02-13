@@ -266,4 +266,14 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get figures => 'Figuras';
+
+  @override
+  String get undo => 'Desfazer';
+
+  @override
+  String get undoEnabled => 'Botão desfazer';
+
+  @override
+  String get undoEnabledDescription =>
+      'Mostrar botão para desfazer o último movimento';
 }

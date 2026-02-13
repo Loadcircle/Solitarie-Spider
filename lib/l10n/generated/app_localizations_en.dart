@@ -264,4 +264,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get figures => 'Figures';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get undoEnabled => 'Undo button';
+
+  @override
+  String get undoEnabledDescription =>
+      'Show undo button to revert the last move';
 }

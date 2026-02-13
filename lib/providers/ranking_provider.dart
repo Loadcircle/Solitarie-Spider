@@ -25,12 +25,17 @@ final rankingProvider = Provider<Map<Difficulty, DifficultyStats>>((ref) {
           .reduce((Duration a, Duration b) => a < b ? a : b);
     }
 
-    // Average time: mean of ALL games
-    final totalMicroseconds = games.fold<int>(
-      0,
-      (int sum, GameResult r) => sum + r.time.inMicroseconds,
-    );
-    final averageTime = Duration(microseconds: totalMicroseconds ~/ games.length);
+    // Average time: mean of WON games only
+    final Duration averageTime;
+    if (wonGames.isNotEmpty) {
+      final totalMicroseconds = wonGames.fold<int>(
+        0,
+        (int sum, GameResult r) => sum + r.time.inMicroseconds,
+      );
+      averageTime = Duration(microseconds: totalMicroseconds ~/ wonGames.length);
+    } else {
+      averageTime = Duration.zero;
+    }
 
     // Longest win streak: max consecutive wins in chronological order
     final sorted = [...games];

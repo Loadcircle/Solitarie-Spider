@@ -109,5 +109,8 @@
       "level": { "type": "int" }
     }
   },
-  "figures": "Figuras"
+  "figures": "Figuras",
+  "undo": "Desfazer",
+  "undoEnabled": "Botão desfazer",
+  "undoEnabledDescription": "Mostrar botão para desfazer o último movimento"
 }

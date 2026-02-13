@@ -579,6 +579,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Figures'**
   String get figures;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @undoEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo button'**
+  String get undoEnabled;
+
+  /// No description provided for @undoEnabledDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show undo button to revert the last move'**
+  String get undoEnabledDescription;
 }
 
 class _AppLocalizationsDelegate

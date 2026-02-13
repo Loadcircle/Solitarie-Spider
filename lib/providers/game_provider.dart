@@ -6,7 +6,10 @@ import '../game/game_engine.dart';
 class GameNotifier extends StateNotifier<GameState?> {
   GameNotifier() : super(null);
 
+  GameState? _previousState;
+
   void startNewGame(Difficulty difficulty) {
+    _previousState = null;
     state = GameEngine.createNewGame(difficulty);
   }
 
@@ -23,7 +26,8 @@ class GameNotifier extends StateNotifier<GameState?> {
       toColumn: toColumn,
     );
     if (newState != null) {
-      state = newState;
+      _previousState = state;
+      state = newState.copyWith(canUndo: true);
     }
   }
 
@@ -34,8 +38,15 @@ class GameNotifier extends StateNotifier<GameState?> {
       allowEmptyColumns: allowEmptyColumns,
     );
     if (newState != null) {
-      state = newState;
+      _previousState = state;
+      state = newState.copyWith(canUndo: true);
     }
+  }
+
+  void undo() {
+    if (_previousState == null || state == null || !state!.canUndo) return;
+    state = _previousState!.copyWith(elapsed: state!.elapsed, canUndo: false);
+    _previousState = null;
   }
 
   void updateElapsed(Duration elapsed) {

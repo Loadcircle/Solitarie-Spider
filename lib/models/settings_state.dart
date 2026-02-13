@@ -12,6 +12,7 @@ class SettingsState {
   final bool allowDealWithEmptyColumns;
   final bool highlightMovable;
   final bool tapToAutoMove;
+  final bool undoEnabled;
   final bool hasSelectedLanguage;
   final bool isLoading;
   final BackgroundItem selectedBackground;
@@ -27,6 +28,7 @@ class SettingsState {
     this.allowDealWithEmptyColumns = false,
     this.highlightMovable = true,
     this.tapToAutoMove = true,
+    this.undoEnabled = true,
     this.hasSelectedLanguage = false,
     this.isLoading = true,
     this.selectedBackground = ShopRegistry.defaultBackground,
@@ -43,6 +45,7 @@ class SettingsState {
     bool? allowDealWithEmptyColumns,
     bool? highlightMovable,
     bool? tapToAutoMove,
+    bool? undoEnabled,
     bool? hasSelectedLanguage,
     bool? isLoading,
     BackgroundItem? selectedBackground,
@@ -59,6 +62,7 @@ class SettingsState {
           allowDealWithEmptyColumns ?? this.allowDealWithEmptyColumns,
       highlightMovable: highlightMovable ?? this.highlightMovable,
       tapToAutoMove: tapToAutoMove ?? this.tapToAutoMove,
+      undoEnabled: undoEnabled ?? this.undoEnabled,
       hasSelectedLanguage: hasSelectedLanguage ?? this.hasSelectedLanguage,
       isLoading: isLoading ?? this.isLoading,
       selectedBackground: selectedBackground ?? this.selectedBackground,

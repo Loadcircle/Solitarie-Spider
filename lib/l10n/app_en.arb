@@ -109,5 +109,8 @@
       "level": { "type": "int" }
     }
   },
-  "figures": "Figures"
+  "figures": "Figures",
+  "undo": "Undo",
+  "undoEnabled": "Undo button",
+  "undoEnabledDescription": "Show undo button to revert the last move"
 }

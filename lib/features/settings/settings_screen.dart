@@ -254,6 +254,18 @@ class SettingsScreen extends ConsumerWidget {
               value: settings.tapToAutoMove,
               onChanged: (_) => notifier.toggleTapToAutoMove(),
             ),
+            SwitchListTile(
+              title: Text(
+                l10n.undoEnabled,
+                style: TextStyle(color: AppTheme.primaryText),
+              ),
+              subtitle: Text(
+                l10n.undoEnabledDescription,
+                style: TextStyle(color: AppTheme.secondaryText),
+              ),
+              value: settings.undoEnabled,
+              onChanged: (_) => notifier.toggleUndo(),
+            ),
             const SizedBox(height: 16),
             ListTile(
               title: Text(
