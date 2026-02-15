@@ -237,13 +237,18 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
     }
 
     // Check all columns have at least one card (unless setting overrides)
+    bool forceAllowEmpty = false;
     if (!settings.allowDealWithEmptyColumns) {
       final hasEmptyColumn = state.tableau.any((col) => col.isEmpty);
       if (hasEmptyColumn) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.allColumnsMustHaveCards)),
-        );
-        return;
+        // Allow deal if no move can fill the empty columns (avoid deadlock)
+        if (GameOverDetector.hasAnyValidMove(state)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.allColumnsMustHaveCards)),
+          );
+          return;
+        }
+        forceAllowEmpty = true;
       }
     }
 
@@ -255,7 +260,8 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
 
     // Perform the deal
     ref.read(gameProvider.notifier).dealFromStock(
-          allowEmptyColumns: settings.allowDealWithEmptyColumns,
+          allowEmptyColumns:
+              settings.allowDealWithEmptyColumns || forceAllowEmpty,
         );
     _playSound(GameSound.cardDeal);
 
@@ -723,6 +729,17 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
           isWon: false,
         ));
 
+    // Calculate and grant loss XP (50% of win formula)
+    final int xpEarned = XpConfig.calculateLossXp(
+      difficulty: state.difficulty,
+      time: state.elapsed,
+      moves: state.moveCount,
+    );
+    final int levelBefore = ref.read(playerProvider).level;
+    ref.read(playerProvider.notifier).addXp(xpEarned);
+    final int levelAfter = ref.read(playerProvider).level;
+    final bool leveledUp = levelAfter > levelBefore;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -730,6 +747,9 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
         score: state.score,
         moves: state.moveCount,
         elapsed: state.elapsed,
+        xpEarned: xpEarned,
+        leveledUp: leveledUp,
+        newLevel: levelAfter,
         onPlayAgain: () {
           Navigator.of(ctx).pop();
           ref

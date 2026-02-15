@@ -6,10 +6,13 @@ class XpConfig {
   // --- Max level ---
   static const int maxLevel = 30;
 
-  // --- Base XP per difficulty (only on win) ---
+  // --- Base XP per difficulty ---
   static const int baseXpOneSuit = 50;
   static const int baseXpTwoSuits = 100;
   static const int baseXpFourSuits = 200;
+
+  // --- Loss multiplier (50% of win XP) ---
+  static const double lossMultiplier = 0.5;
 
   // --- Time multiplier (1.0x – 1.5x) ---
   static const double timeTargetMinutes = 5.0;
@@ -23,6 +26,21 @@ class XpConfig {
 
   // --- XP required to advance FROM level to level+1 ---
   static int xpForLevel(int level) => level * 100;
+
+  /// Calculate XP earned for a loss (50% of win XP).
+  static int calculateLossXp({
+    required Difficulty difficulty,
+    required Duration time,
+    required int moves,
+  }) {
+    return (calculateXp(
+              difficulty: difficulty,
+              time: time,
+              moves: moves,
+            ) *
+            lossMultiplier)
+        .round();
+  }
 
   // --- Calculate XP earned for a win ---
   static int calculateXp({

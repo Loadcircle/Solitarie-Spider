@@ -6,6 +6,27 @@ import 'move_validator.dart';
 class GameOverDetector {
   GameOverDetector._();
 
+  /// Returns true when at least one valid move exists on the tableau.
+  static bool hasAnyValidMove(GameState state) {
+    final tableau = state.tableau;
+    for (var i = 0; i < tableau.length; i++) {
+      final column = tableau[i];
+      for (var j = 0; j < column.length; j++) {
+        if (!column[j].isFaceUp) continue;
+        final cards = column.sublist(j);
+        if (!MoveValidator.canPickUp(cards)) continue;
+
+        final topCard = cards.first;
+        for (var k = 0; k < tableau.length; k++) {
+          if (k == i) continue;
+          if (!MoveValidator.canDrop(topCard, tableau[k])) continue;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   /// Returns true if the game is lost: no useful actions remaining.
   static bool isGameOver(
     GameState state, {
@@ -17,30 +38,16 @@ class GameOverDetector {
     final bool hasEmptyColumn =
         tableau.any((List<PlayingCard> col) => col.isEmpty);
 
-    // If stock is available and can be dealt, never game over
+    // If stock is available, the player can always deal:
+    // either columns are filled, or the setting allows it, or
+    // no move can fill empty columns (forced deal as fallback).
     if (state.stock.isNotEmpty) {
       final bool canDeal = allowDealWithEmptyColumns || !hasEmptyColumn;
       if (canDeal) return false;
 
-      // Stock exists but blocked by empty columns
-      // Check if any move can fill an empty column to unblock dealing
-      for (var i = 0; i < tableau.length; i++) {
-        final column = tableau[i];
-        for (var j = 0; j < column.length; j++) {
-          if (!column[j].isFaceUp) continue;
-          final cards = column.sublist(j);
-          if (!MoveValidator.canPickUp(cards)) continue;
-
-          final topCard = cards.first;
-          for (var k = 0; k < tableau.length; k++) {
-            if (k == i) continue;
-            if (!MoveValidator.canDrop(topCard, tableau[k])) continue;
-            return false;
-          }
-        }
-      }
-
-      return true;
+      // Stock blocked by empty columns — but deal will be forced
+      // if no move can fill them, so this is never game over.
+      return false;
     }
 
     // ── No stock left — check for moves that make real progress ──

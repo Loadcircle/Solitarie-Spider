@@ -74,6 +74,14 @@
       "pt": "Azul Clássico"
     },
     {
+      "id": "classic_blue_crosshatch",
+      "unlockLevel": 4,
+      "assetPath": "assets/images/cards/classic_blue_crosshatch.png",
+      "en": "Classic Blue Crosshatch",
+      "es": "Azul Clásico Entrecruzado",
+      "pt": "Azul Clássico Cruzado"
+    },
+    {
       "id": "card_spider_royale",
       "unlockLevel": 6,
       "assetPath": "assets/images/cards/spider_royale.png",
@@ -88,6 +96,14 @@
       "en": "Royal Spade",
       "es": "Pica Real",
       "pt": "Espada Real"
+    },
+    {
+      "id": "card_blue_bird",
+      "unlockLevel": 12,
+      "assetPath": "assets/images/cards/blue_bird.png",
+      "en": "Blue Bird",
+      "es": "Pájaro Azul",
+      "pt": "Pássaro Azul"
     },
     {
       "id": "card_samurai_royal",
