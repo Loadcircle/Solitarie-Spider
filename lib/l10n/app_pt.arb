@@ -128,5 +128,7 @@
     "placeholders": {
       "days": { "type": "int" }
     }
-  }
+  },
+  "watchAdDoubleXp": "2× XP — Assistir anúncio",
+  "watchAdSaveResult": "Assistir anúncio — Não registrar"
 }

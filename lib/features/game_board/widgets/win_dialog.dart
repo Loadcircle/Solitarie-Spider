@@ -3,7 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
-class WinDialog extends StatelessWidget {
+class WinDialog extends StatefulWidget {
   const WinDialog({
     super.key,
     required this.score,
@@ -14,6 +14,7 @@ class WinDialog extends StatelessWidget {
     required this.xpEarned,
     required this.leveledUp,
     required this.newLevel,
+    this.onBoostXp,
   });
 
   final int score;
@@ -24,6 +25,14 @@ class WinDialog extends StatelessWidget {
   final int xpEarned;
   final bool leveledUp;
   final int newLevel;
+  final VoidCallback? onBoostXp;
+
+  @override
+  State<WinDialog> createState() => _WinDialogState();
+}
+
+class _WinDialogState extends State<WinDialog> {
+  bool _adUsed = false;
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -74,7 +83,7 @@ class WinDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              l10n.finalScore(score),
+              l10n.finalScore(widget.score),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -83,26 +92,26 @@ class WinDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.totalMoves(moves),
+              l10n.totalMoves(widget.moves),
               style: TextStyle(color: AppTheme.secondaryText),
             ),
             Text(
-              l10n.totalTime(_formatDuration(elapsed)),
+              l10n.totalTime(_formatDuration(widget.elapsed)),
               style: TextStyle(color: AppTheme.secondaryText),
             ),
             const SizedBox(height: 12),
             Text(
-              l10n.xpEarned(xpEarned),
+              l10n.xpEarned(widget.xpEarned),
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFFFFD54F),
               ),
             ),
-            if (leveledUp) ...[
+            if (widget.leveledUp) ...[
               const SizedBox(height: 4),
               Text(
-                '${l10n.levelUp} → ${l10n.level} $newLevel',
+                '${l10n.levelUp} → ${l10n.level} ${widget.newLevel}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -110,18 +119,30 @@ class WinDialog extends StatelessWidget {
                 ),
               ),
             ],
+            if (widget.onBoostXp != null && !_adUsed) ...[
+              const SizedBox(height: 16),
+              AppButton(
+                icon: Icons.play_circle_outline,
+                label: l10n.watchAdDoubleXp,
+                onPressed: () {
+                  setState(() => _adUsed = true);
+                  widget.onBoostXp!();
+                },
+                isPrimary: false,
+              ),
+            ],
             const SizedBox(height: 24),
             AppButton(
               icon: Icons.replay,
               label: l10n.playAgain,
-              onPressed: onPlayAgain,
+              onPressed: widget.onPlayAgain,
               isPrimary: true,
             ),
             const SizedBox(height: 10),
             AppButton(
               icon: Icons.home,
               label: l10n.backToHome,
-              onPressed: onBackToHome,
+              onPressed: widget.onBackToHome,
               isPrimary: false,
             ),
           ],

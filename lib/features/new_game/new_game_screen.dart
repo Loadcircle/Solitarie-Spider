@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/ads/banner_ad_widget.dart';
 import '../../core/enums/difficulty.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/gradient_background.dart';
@@ -17,40 +18,47 @@ class NewGameScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.newGame)),
-      body: GradientBackground(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 32),
-              Text(
-                l10n.difficulty,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppTheme.primaryText,
-                      fontWeight: FontWeight.w600,
+      body: Column(
+        children: [
+          Expanded(
+            child: GradientBackground(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 32),
+                    Text(
+                      l10n.difficulty,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: AppTheme.primaryText,
+                            fontWeight: FontWeight.w600,
+                          ),
+                      textAlign: TextAlign.center,
                     ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              for (final difficulty in Difficulty.values) ...[
-                _DifficultyCard(
-                  difficulty: difficulty,
-                  isSelected: difficulty == settings.defaultDifficulty,
-                  l10n: l10n,
-                  onTap: () {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      AppRouter.gameBoard,
-                      arguments: difficulty,
-                    );
-                  },
+                    const SizedBox(height: 32),
+                    for (final difficulty in Difficulty.values) ...[
+                      _DifficultyCard(
+                        difficulty: difficulty,
+                        isSelected: difficulty == settings.defaultDifficulty,
+                        l10n: l10n,
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            AppRouter.gameBoard,
+                            arguments: difficulty,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 16),
-              ],
-            ],
+              ),
+            ),
           ),
-        ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }

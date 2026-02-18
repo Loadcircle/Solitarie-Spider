@@ -28,6 +28,7 @@ import 'widgets/win_dialog.dart';
 import 'widgets/lose_dialog.dart';
 import 'widgets/pause_dialog.dart';
 import '../../game/game_over_detector.dart';
+import '../../core/ads/ad_service.dart';
 import '../../core/theme/app_theme.dart';
 
 class GameBoardScreen extends ConsumerStatefulWidget {
@@ -77,6 +78,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _soundService = ref.read(soundServiceProvider);
+    AdService.instance.loadRewarded();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initGame();
     });
@@ -686,6 +688,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
     final int levelAfter = ref.read(playerProvider).level;
     final bool leveledUp = levelAfter > levelBefore;
 
+    final bool rewardedReady = AdService.instance.isRewardedReady;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -696,6 +699,16 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
         xpEarned: xpEarned,
         leveledUp: leveledUp,
         newLevel: levelAfter,
+        onBoostXp: rewardedReady
+            ? () {
+                AdService.instance.showRewarded(
+                  onRewarded: (_) {
+                    if (mounted) ref.read(playerProvider.notifier).addXp(xpEarned);
+                  },
+                  onDismissed: () => AdService.instance.loadRewarded(),
+                );
+              }
+            : null,
         onPlayAgain: () {
           Navigator.of(ctx).pop();
           ref
@@ -720,15 +733,6 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
     ref.read(timerProvider.notifier).stop();
     _playSound(GameSound.lose);
 
-    ref.read(historyProvider.notifier).addResult(GameResult(
-          dateTime: DateTime.now(),
-          difficulty: state.difficulty,
-          score: state.score,
-          time: state.elapsed,
-          moves: state.moveCount,
-          isWon: false,
-        ));
-
     // Calculate and grant loss XP (50% of win formula)
     final int xpEarned = XpConfig.calculateLossXp(
       difficulty: state.difficulty,
@@ -740,6 +744,19 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
     final int levelAfter = ref.read(playerProvider).level;
     final bool leveledUp = levelAfter > levelBefore;
 
+    // Record loss — called from dialog callbacks unless user watches ad to save
+    void recordLoss() {
+      ref.read(historyProvider.notifier).addResult(GameResult(
+            dateTime: DateTime.now(),
+            difficulty: state.difficulty,
+            score: state.score,
+            time: state.elapsed,
+            moves: state.moveCount,
+            isWon: false,
+          ));
+    }
+
+    final bool rewardedReady = AdService.instance.isRewardedReady;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -750,7 +767,26 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
         xpEarned: xpEarned,
         leveledUp: leveledUp,
         newLevel: levelAfter,
+        onSaveFromLoss: rewardedReady
+            ? () {
+                bool rewardEarned = false;
+                AdService.instance.showRewarded(
+                  onRewarded: (_) {
+                    rewardEarned = true;
+                  },
+                  onDismissed: () {
+                    AdService.instance.loadRewarded();
+                    if (rewardEarned && mounted) {
+                      Navigator.of(ctx).pop();
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil(AppRouter.home, (route) => false);
+                    }
+                  },
+                );
+              }
+            : null,
         onPlayAgain: () {
+          recordLoss();
           Navigator.of(ctx).pop();
           ref
               .read(gameProvider.notifier)
@@ -759,6 +795,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
           _hasShownLoseDialog = false;
         },
         onBackToHome: () {
+          recordLoss();
           Navigator.of(ctx).pop();
           Navigator.of(context)
               .pushNamedAndRemoveUntil(AppRouter.home, (route) => false);

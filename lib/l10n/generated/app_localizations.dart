@@ -663,6 +663,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days} day streak'**
   String playStreak(int days);
+
+  /// No description provided for @watchAdDoubleXp.
+  ///
+  /// In en, this message translates to:
+  /// **'2× XP — Watch Ad'**
+  String get watchAdDoubleXp;
+
+  /// No description provided for @watchAdSaveResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Ad — Save Result'**
+  String get watchAdSaveResult;
 }
 
 class _AppLocalizationsDelegate

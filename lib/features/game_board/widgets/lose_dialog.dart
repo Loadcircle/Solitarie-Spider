@@ -3,7 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
-class LoseDialog extends StatelessWidget {
+class LoseDialog extends StatefulWidget {
   const LoseDialog({
     super.key,
     required this.score,
@@ -14,6 +14,7 @@ class LoseDialog extends StatelessWidget {
     required this.xpEarned,
     required this.leveledUp,
     required this.newLevel,
+    this.onSaveFromLoss,
   });
 
   final int score;
@@ -24,6 +25,14 @@ class LoseDialog extends StatelessWidget {
   final int xpEarned;
   final bool leveledUp;
   final int newLevel;
+  final VoidCallback? onSaveFromLoss;
+
+  @override
+  State<LoseDialog> createState() => _LoseDialogState();
+}
+
+class _LoseDialogState extends State<LoseDialog> {
+  bool _adUsed = false;
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -74,7 +83,7 @@ class LoseDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              l10n.finalScore(score),
+              l10n.finalScore(widget.score),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -83,26 +92,26 @@ class LoseDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.totalMoves(moves),
+              l10n.totalMoves(widget.moves),
               style: TextStyle(color: AppTheme.secondaryText),
             ),
             Text(
-              l10n.totalTime(_formatDuration(elapsed)),
+              l10n.totalTime(_formatDuration(widget.elapsed)),
               style: TextStyle(color: AppTheme.secondaryText),
             ),
             const SizedBox(height: 12),
             Text(
-              l10n.xpEarned(xpEarned),
+              l10n.xpEarned(widget.xpEarned),
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFFFFD54F),
               ),
             ),
-            if (leveledUp) ...[
+            if (widget.leveledUp) ...[
               const SizedBox(height: 4),
               Text(
-                '${l10n.levelUp} → ${l10n.level} $newLevel',
+                '${l10n.levelUp} → ${l10n.level} ${widget.newLevel}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -110,18 +119,30 @@ class LoseDialog extends StatelessWidget {
                 ),
               ),
             ],
+            if (widget.onSaveFromLoss != null && !_adUsed) ...[
+              const SizedBox(height: 16),
+              AppButton(
+                icon: Icons.play_circle_outline,
+                label: l10n.watchAdSaveResult,
+                onPressed: () {
+                  setState(() => _adUsed = true);
+                  widget.onSaveFromLoss!();
+                },
+                isPrimary: false,
+              ),
+            ],
             const SizedBox(height: 24),
             AppButton(
               icon: Icons.replay,
               label: l10n.playAgain,
-              onPressed: onPlayAgain,
+              onPressed: widget.onPlayAgain,
               isPrimary: true,
             ),
             const SizedBox(height: 10),
             AppButton(
               icon: Icons.home,
               label: l10n.backToHome,
-              onPressed: onBackToHome,
+              onPressed: widget.onBackToHome,
               isPrimary: false,
             ),
           ],

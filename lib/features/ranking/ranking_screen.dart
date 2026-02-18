@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/ads/banner_ad_widget.dart';
 import '../../core/enums/difficulty.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/gradient_background.dart';
@@ -64,8 +65,11 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
           tabs: tabLabels.map((String label) => Tab(text: label)).toList(),
         ),
       ),
-      body: GradientBackground(
-        child: TabBarView(
+      body: Column(
+        children: [
+          Expanded(
+            child: GradientBackground(
+              child: TabBarView(
           controller: _tabController,
           children: tabs.map((Difficulty difficulty) {
             final DifficultyStats? diffStats = stats[difficulty];
@@ -119,7 +123,11 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
               ],
             );
           }).toList(),
-        ),
+              ),
+            ),
+          ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }

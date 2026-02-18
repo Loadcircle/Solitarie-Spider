@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/ads/banner_ad_widget.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -63,6 +64,8 @@ class PauseDialog extends StatelessWidget {
               onPressed: onBackToHome,
               isPrimary: false,
             ),
+            const SizedBox(height: 16),
+            const BannerAdWidget(),
           ],
         ),
       ),

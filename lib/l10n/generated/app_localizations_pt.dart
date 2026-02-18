@@ -313,4 +313,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String playStreak(int days) {
     return 'Sequência de $days dias';
   }
+
+  @override
+  String get watchAdDoubleXp => '2× XP — Assistir anúncio';
+
+  @override
+  String get watchAdSaveResult => 'Assistir anúncio — Não registrar';
 }

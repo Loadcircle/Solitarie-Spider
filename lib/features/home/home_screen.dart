@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/ads/ad_service.dart';
 import '../../core/ads/banner_ad_widget.dart';
 import '../../core/constants/shop_registry.dart';
 import '../../core/constants/xp_config.dart';
@@ -40,6 +41,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         _showLanguagePickerDialog();
       });
     }, fireImmediately: true);
+
+    AdService.instance.loadInterstitial();
 
     // Check for newly unlocked rewards each time home screen appears
     ref.listenManual(playerProvider, (PlayerState? previous, PlayerState next) {
@@ -273,7 +276,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ));
                     }
                     Navigator.of(ctx).pop();
-                    Navigator.pushNamed(context, AppRouter.newGame);
+                    if (AdService.instance.isInterstitialReady) {
+                      AdService.instance.showInterstitial(onDismissed: () {
+                        AdService.instance.loadInterstitial();
+                        if (mounted) Navigator.pushNamed(context, AppRouter.newGame);
+                      });
+                    } else {
+                      Navigator.pushNamed(context, AppRouter.newGame);
+                    }
                   },
                   isPrimary: true,
                 ),
@@ -301,9 +311,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hasActiveGame = gameState != null && gameState.isStarted && !gameState.isWon;
 
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
+      body: Column(
         children: [
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
           Container(
             decoration: const BoxDecoration(
               gradient: RadialGradient(
@@ -379,12 +392,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       isPrimary: false,
                     ),
                     const SizedBox(height: 40),
-                    const BannerAdWidget(),
                   ],
                 ),
               ),
             ),
 
+              ],
+            ),
+          ),
+          const BannerAdWidget(),
         ],
       ),
     );

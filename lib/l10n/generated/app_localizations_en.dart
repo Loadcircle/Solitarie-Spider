@@ -311,4 +311,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String playStreak(int days) {
     return '$days day streak';
   }
+
+  @override
+  String get watchAdDoubleXp => '2× XP — Watch Ad';
+
+  @override
+  String get watchAdSaveResult => 'Watch Ad — Save Result';
 }
