@@ -26,6 +26,8 @@ Spider Solitaire card game built with Flutter, targeting Android (mobile-first).
 lib/core/enums/       # Difficulty, Suit, Rank enums
 lib/core/theme/       # AppTheme, GradientBackground
 lib/core/widgets/     # Shared widgets (AppButton)
+lib/core/ads/         # Ad system (AdService singleton + BannerAdWidget)
+lib/core/services/    # App-wide services (NotificationService, SoundService)
 lib/game/             # Pure Dart game logic (ZERO Flutter imports)
 lib/models/           # Data models (GameState, SettingsState, PlayingCard)
 lib/providers/        # Riverpod providers
@@ -70,6 +72,19 @@ lib/l10n/             # ARB files + generated localizations
 - `flutter test` - Run all unit tests
 - `flutter gen-l10n` - Regenerate localization files
 - `flutter run` - Run on connected device/emulator
+
+## Ads System (`lib/core/ads/`)
+
+- `google_mobile_ads: ^7.0.0` — initialized in `main.dart` via `MobileAds.instance.initialize()`
+- `AdService` singleton (`ad_service.dart`) — centralizes all ad types. Currently using **Google test IDs**. None load or show automatically; call `load*()` to preload, `show*()` to display.
+- `BannerAdWidget` (`banner_ad_widget.dart`) — self-contained widget, manages own lifecycle. Accepts optional `AdSize` (defaults to `AdSize.banner`). Use anywhere in the widget tree.
+- Ad types available:
+  - **Banner** — `BannerAdWidget()` — persistent in-screen strip
+  - **Interstitial** — full-screen static, between games / on return to home
+  - **Rewarded** — full-screen video, user earns reward (undo, hint, etc.)
+  - **Rewarded Interstitial** — like rewarded but skippable, lower friction
+  - **App Open** — shown when app returns from background
+- AdMob App ID in `AndroidManifest.xml` as `com.google.android.gms.ads.APPLICATION_ID`
 
 ## Conventions
 - i18n: All user-facing strings via `AppLocalizations` (lib/l10n/generated/)

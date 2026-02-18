@@ -12,7 +12,15 @@
       "Bash(flutter pub get:*)",
       "Bash(copy:*)",
       "Bash(if not exist \"D:\\\\Trabajo\\\\Programas\\\\my_solitarie\\\\my_solitarie\\\\assets\\\\images\\\\backgrounds\" mkdir \"D:\\\\Trabajo\\\\Programas\\\\my_solitarie\\\\my_solitarie\\\\assets\\\\images\\\\backgrounds\")",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(flutter devices:*)",
+      "Bash(adb logcat:*)",
+      "Bash(adb devices:*)",
+      "Bash(adb:*)",
+      "Bash(adb.exe -s emulator-5554 logcat:*)",
+      "Bash(where:*)",
+      "Bash(\"C:\\\\Users\\\\jesus\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\" -s emulator-5554 logcat -d)",
+      "Bash(cmd /c:*)"
     ]
   }
 }

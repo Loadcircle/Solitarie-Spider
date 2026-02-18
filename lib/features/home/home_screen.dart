@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/ads/banner_ad_widget.dart';
 import '../../core/constants/shop_registry.dart';
 import '../../core/constants/xp_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -378,6 +379,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       isPrimary: false,
                     ),
                     const SizedBox(height: 40),
+                    const BannerAdWidget(),
                   ],
                 ),
               ),
