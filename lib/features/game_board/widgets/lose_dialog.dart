@@ -122,13 +122,13 @@ class _LoseDialogState extends State<LoseDialog> {
             if (widget.onSaveFromLoss != null && !_adUsed) ...[
               const SizedBox(height: 16),
               AppButton(
-                icon: Icons.play_circle_outline,
+                icon: Icons.local_fire_department,
                 label: l10n.watchAdSaveResult,
                 onPressed: () {
                   setState(() => _adUsed = true);
                   widget.onSaveFromLoss!();
                 },
-                isPrimary: false,
+                isGold: true,
               ),
             ],
             const SizedBox(height: 24),

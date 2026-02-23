@@ -122,13 +122,13 @@ class _WinDialogState extends State<WinDialog> {
             if (widget.onBoostXp != null && !_adUsed) ...[
               const SizedBox(height: 16),
               AppButton(
-                icon: Icons.play_circle_outline,
+                icon: Icons.bolt,
                 label: l10n.watchAdDoubleXp,
                 onPressed: () {
                   setState(() => _adUsed = true);
                   widget.onBoostXp!();
                 },
-                isPrimary: false,
+                isGold: true,
               ),
             ],
             const SizedBox(height: 24),

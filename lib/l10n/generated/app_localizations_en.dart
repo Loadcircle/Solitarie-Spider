@@ -316,5 +316,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get watchAdDoubleXp => '2× XP — Watch Ad';
 
   @override
-  String get watchAdSaveResult => 'Watch Ad — Save Result';
+  String get watchAdSaveResult => 'Save My Streak — Watch Ad';
 }

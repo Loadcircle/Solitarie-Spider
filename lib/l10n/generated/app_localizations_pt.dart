@@ -318,5 +318,5 @@ class AppLocalizationsPt extends AppLocalizations {
   String get watchAdDoubleXp => '2× XP — Assistir anúncio';
 
   @override
-  String get watchAdSaveResult => 'Assistir anúncio — Não registrar';
+  String get watchAdSaveResult => 'Salvar a sequência — Assistir anúncio';
 }

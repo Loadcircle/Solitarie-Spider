@@ -65,7 +65,7 @@ class PauseDialog extends StatelessWidget {
               isPrimary: false,
             ),
             const SizedBox(height: 16),
-            const BannerAdWidget(),
+            SizedBox(height: 50, child: BannerAdWidget()),
           ],
         ),
       ),

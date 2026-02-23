@@ -55,6 +55,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
     ];
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0A1A0E),
       appBar: AppBar(
         title: Text(l10n.ranking),
         bottom: TabBar(

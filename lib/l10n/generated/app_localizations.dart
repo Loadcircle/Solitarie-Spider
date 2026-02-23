@@ -673,7 +673,7 @@ abstract class AppLocalizations {
   /// No description provided for @watchAdSaveResult.
   ///
   /// In en, this message translates to:
-  /// **'Watch Ad — Save Result'**
+  /// **'Save My Streak — Watch Ad'**
   String get watchAdSaveResult;
 }
 

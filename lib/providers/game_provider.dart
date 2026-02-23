@@ -49,6 +49,11 @@ class GameNotifier extends StateNotifier<GameState?> {
     _previousState = null;
   }
 
+  void clearGame() {
+    _previousState = null;
+    state = null;
+  }
+
   void updateElapsed(Duration elapsed) {
     if (state == null) return;
     state = state!.copyWith(elapsed: elapsed);

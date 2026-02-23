@@ -311,6 +311,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hasActiveGame = gameState != null && gameState.isStarted && !gameState.isWon;
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0A1A0E),
       body: Column(
         children: [
           Expanded(

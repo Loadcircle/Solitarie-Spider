@@ -777,6 +777,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
                   onDismissed: () {
                     AdService.instance.loadRewarded();
                     if (rewardEarned && mounted) {
+                      ref.read(gameProvider.notifier).clearGame();
                       Navigator.of(ctx).pop();
                       Navigator.of(context)
                           .pushNamedAndRemoveUntil(AppRouter.home, (route) => false);
@@ -796,6 +797,7 @@ class _GameBoardScreenState extends ConsumerState<GameBoardScreen>
         },
         onBackToHome: () {
           recordLoss();
+          ref.read(gameProvider.notifier).clearGame();
           Navigator.of(ctx).pop();
           Navigator.of(context)
               .pushNamedAndRemoveUntil(AppRouter.home, (route) => false);
