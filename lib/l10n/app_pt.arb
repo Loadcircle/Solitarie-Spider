@@ -130,5 +130,11 @@
     }
   },
   "watchAdDoubleXp": "2× XP — Assistir anúncio",
-  "watchAdSaveResult": "Salvar a sequência — Assistir anúncio"
+  "watchAdSaveResult": "Salvar a sequência — Assistir anúncio",
+  "removeAds": "Remover anúncios",
+  "removeAdsPurchased": "Sem anúncios",
+  "removeAdsPrice": "Compra única",
+  "purchaseFailed": "Falha na compra. Tente novamente.",
+  "purchaseRestored": "Compra restaurada!",
+  "privacyPolicy": "Política de privacidade"
 }

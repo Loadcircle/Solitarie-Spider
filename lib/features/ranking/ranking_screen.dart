@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/ads/banner_ad_widget.dart';
+import '../../core/ads/ad_banner_widget.dart';
 import '../../core/enums/difficulty.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/gradient_background.dart';
@@ -127,7 +127,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
               ),
             ),
           ),
-          const BannerAdWidget(),
+          const AdBannerWidget(),
         ],
       ),
     );

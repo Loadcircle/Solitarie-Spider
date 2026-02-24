@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import '../../core/ads/ad_banner_widget.dart';
 import '../../core/ads/ad_service.dart';
-import '../../core/ads/banner_ad_widget.dart';
+import '../../core/iap/iap_service.dart';
 import '../../core/constants/shop_registry.dart';
 import '../../core/constants/xp_config.dart';
 import '../../core/theme/app_theme.dart';
@@ -27,6 +29,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _hasShownLanguageDialog = false;
   bool _hasCheckedUnlocks = false;
+  String? _removeAdsPrice;
+  ProductDetails? _removeAdsProduct;
 
   @override
   void initState() {
@@ -42,7 +46,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       });
     }, fireImmediately: true);
 
-    AdService.instance.loadInterstitial();
+    if (!ref.read(settingsProvider).adsRemoved) {
+      AdService.instance.loadInterstitial();
+    }
+
+    IAPService.instance.init((bool removed) {
+      ref.read(settingsProvider.notifier).setAdsRemoved(removed);
+    });
+
+    _fetchRemoveAdsProduct();
 
     // Check for newly unlocked rewards each time home screen appears
     ref.listenManual(playerProvider, (PlayerState? previous, PlayerState next) {
@@ -62,6 +74,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         });
       }
     }, fireImmediately: true);
+  }
+
+  @override
+  void dispose() {
+    IAPService.instance.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchRemoveAdsProduct() async {
+    final product = await IAPService.instance.fetchProductDetails();
+    if (!mounted) return;
+    setState(() {
+      _removeAdsProduct = product;
+      _removeAdsPrice = product?.price;
+    });
+  }
+
+  Future<void> _onRemoveAdsTapped() async {
+    final product = _removeAdsProduct;
+    if (product == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.purchaseFailed)),
+        );
+      }
+      return;
+    }
+    await IAPService.instance.buy(product);
   }
 
   @override
@@ -276,7 +316,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ));
                     }
                     Navigator.of(ctx).pop();
-                    if (AdService.instance.isInterstitialReady) {
+                    final adsRemoved = ref.read(settingsProvider).adsRemoved;
+                    if (!adsRemoved && AdService.instance.isInterstitialReady) {
                       AdService.instance.showInterstitial(onDismissed: () {
                         AdService.instance.loadInterstitial();
                         if (mounted) Navigator.pushNamed(context, AppRouter.newGame);
@@ -308,6 +349,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final gameState = ref.watch(gameProvider);
     final playerState = ref.watch(playerProvider);
+    final settings = ref.watch(settingsProvider);
     final hasActiveGame = gameState != null && gameState.isStarted && !gameState.isWon;
 
     return Scaffold(
@@ -401,8 +443,64 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
           ),
-          const BannerAdWidget(),
+          if (!settings.adsRemoved)
+            _RemoveAdsCard(
+              onTap: _onRemoveAdsTapped,
+              price: _removeAdsPrice,
+            ),
+          const AdBannerWidget(),
         ],
+      ),
+    );
+  }
+}
+
+class _RemoveAdsCard extends StatelessWidget {
+  final VoidCallback onTap;
+  final String? price;
+  const _RemoveAdsCard({required this.onTap, this.price});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        height: 52,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4A148C), Color(0xFF1A237E)],
+          ),
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x664A148C), blurRadius: 8, offset: Offset(0, 3))
+          ],
+          border: Border.all(color: const Color(0xFF7B1FA2), width: 1),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const Icon(Icons.auto_awesome, color: Colors.amber, size: 20),
+              const SizedBox(width: 10),
+              Text(
+                AppLocalizations.of(context)!.removeAds,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15),
+              ),
+              const Spacer(),
+              if (price != null)
+                Text(price!,
+                    style: const TextStyle(
+                        color: Colors.white70, fontSize: 13)),
+              const SizedBox(width: 6),
+              const Icon(Icons.chevron_right, color: Colors.white),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -510,8 +608,8 @@ class _LevelProgressBar extends StatelessWidget {
         gradient: isGhost
             ? LinearGradient(
                 colors: [
-                  Colors.white.withOpacity(0.12),
-                  Colors.white.withOpacity(0.06),
+                  Colors.white.withValues(alpha: 0.12),
+                  Colors.white.withValues(alpha: 0.06),
                 ],
               )
             : const LinearGradient(
@@ -547,9 +645,9 @@ class _LevelProgressBar extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            Colors.black.withOpacity(0.0),   // 👈 izquierda transparente
-            Colors.black.withOpacity(0.35),  // 👈 centro visible
-            Colors.black.withOpacity(0.0),   // 👈 derecha transparente
+            Colors.black.withValues(alpha: 0.0),   // 👈 izquierda transparente
+            Colors.black.withValues(alpha: 0.35),  // 👈 centro visible
+            Colors.black.withValues(alpha: 0.0),   // 👈 derecha transparente
           ],
           stops: const [0.0, 0.5, 1.0],
         ),

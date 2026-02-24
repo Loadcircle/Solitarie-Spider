@@ -319,4 +319,22 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get watchAdSaveResult => 'Salvar a sequência — Assistir anúncio';
+
+  @override
+  String get removeAds => 'Remover anúncios';
+
+  @override
+  String get removeAdsPurchased => 'Sem anúncios';
+
+  @override
+  String get removeAdsPrice => 'Compra única';
+
+  @override
+  String get purchaseFailed => 'Falha na compra. Tente novamente.';
+
+  @override
+  String get purchaseRestored => 'Compra restaurada!';
+
+  @override
+  String get privacyPolicy => 'Política de privacidade';
 }

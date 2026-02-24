@@ -20,6 +20,7 @@ class SettingsState {
   final FigureItem selectedFigure;
   final bool streakReminderEnabled;
   final bool rewardAlertEnabled;
+  final bool adsRemoved;
 
   const SettingsState({
     this.defaultDifficulty = Difficulty.oneSuit,
@@ -38,6 +39,7 @@ class SettingsState {
     this.selectedFigure = ShopRegistry.defaultFigure,
     this.streakReminderEnabled = true,
     this.rewardAlertEnabled = true,
+    this.adsRemoved = false,
   });
 
   SettingsState copyWith({
@@ -57,6 +59,7 @@ class SettingsState {
     FigureItem? selectedFigure,
     bool? streakReminderEnabled,
     bool? rewardAlertEnabled,
+    bool? adsRemoved,
   }) {
     return SettingsState(
       defaultDifficulty: defaultDifficulty ?? this.defaultDifficulty,
@@ -77,6 +80,7 @@ class SettingsState {
       streakReminderEnabled:
           streakReminderEnabled ?? this.streakReminderEnabled,
       rewardAlertEnabled: rewardAlertEnabled ?? this.rewardAlertEnabled,
+      adsRemoved: adsRemoved ?? this.adsRemoved,
     );
   }
 }

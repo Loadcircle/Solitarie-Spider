@@ -19,6 +19,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _keyFigure = 'selectedFigure';
   static const _keyStreakReminder = 'streakReminderEnabled';
   static const _keyRewardAlert = 'rewardAlertEnabled';
+  static const _keyAdsRemoved = 'adsRemoved';
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -42,6 +43,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
     final bool streakReminder = prefs.getBool(_keyStreakReminder) ?? true;
     final bool rewardAlert = prefs.getBool(_keyRewardAlert) ?? true;
+    final bool adsRemoved = prefs.getBool(_keyAdsRemoved) ?? false;
 
     state = state.copyWith(
       hasSelectedLanguage: hasSelected && localeCode != null ? true : null,
@@ -51,6 +53,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       selectedFigure: fig,
       streakReminderEnabled: streakReminder,
       rewardAlertEnabled: rewardAlert,
+      adsRemoved: adsRemoved,
       isLoading: false,
     );
   }
@@ -155,6 +158,12 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     if (!newValue) {
       await NotificationService.instance.cancelRewardProximity();
     }
+  }
+
+  Future<void> setAdsRemoved(bool value) async {
+    state = state.copyWith(adsRemoved: value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyAdsRemoved, value);
   }
 
   /// Reset selections to defaults if the current items are locked at [playerLevel].

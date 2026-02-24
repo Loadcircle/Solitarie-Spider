@@ -675,6 +675,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save My Streak — Watch Ad'**
   String get watchAdSaveResult;
+
+  /// No description provided for @removeAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Ads'**
+  String get removeAds;
+
+  /// No description provided for @removeAdsPurchased.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad-Free'**
+  String get removeAdsPurchased;
+
+  /// No description provided for @removeAdsPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase'**
+  String get removeAdsPrice;
+
+  /// No description provided for @purchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase failed. Please try again.'**
+  String get purchaseFailed;
+
+  /// No description provided for @purchaseRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase restored!'**
+  String get purchaseRestored;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
 }
 
 class _AppLocalizationsDelegate

@@ -317,4 +317,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get watchAdSaveResult => 'Save My Streak — Watch Ad';
+
+  @override
+  String get removeAds => 'Remove Ads';
+
+  @override
+  String get removeAdsPurchased => 'Ad-Free';
+
+  @override
+  String get removeAdsPrice => 'One-time purchase';
+
+  @override
+  String get purchaseFailed => 'Purchase failed. Please try again.';
+
+  @override
+  String get purchaseRestored => 'Purchase restored!';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
 }

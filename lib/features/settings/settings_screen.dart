@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/enums/difficulty.dart';
+import '../../core/iap/iap_service.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/gradient_background.dart';
@@ -9,8 +12,42 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../models/settings_state.dart';
 import '../../providers/settings_provider.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  ProductDetails? _removeAdsProduct;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRemoveAdsProduct();
+  }
+
+  Future<void> _fetchRemoveAdsProduct() async {
+    final product = await IAPService.instance.fetchProductDetails();
+    if (!mounted) return;
+    setState(() {
+      _removeAdsProduct = product;
+    });
+  }
+
+  Future<void> _onRemoveAdsTapped(AppLocalizations l10n) async {
+    final product = _removeAdsProduct;
+    if (product == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.purchaseFailed)),
+        );
+      }
+      return;
+    }
+    await IAPService.instance.buy(product);
+  }
 
   String _difficultyLabel(Difficulty d, AppLocalizations l10n) {
     switch (d) {
@@ -170,7 +207,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(settingsProvider);
     final notifier = ref.read(settingsProvider.notifier);
@@ -181,6 +218,31 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           children: [
             const SizedBox(height: 8),
+            if (!settings.adsRemoved)
+              ListTile(
+                leading: const Icon(Icons.auto_awesome,
+                    color: Colors.amber, size: 24),
+                title: Text(
+                  l10n.removeAds,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  l10n.removeAdsPrice,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                trailing: Icon(Icons.chevron_right,
+                    color: AppTheme.disabledText),
+                tileColor: const Color(0xFF4A148C).withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFF7B1FA2), width: 1),
+                ),
+                onTap: () => _onRemoveAdsTapped(l10n),
+              ),
+            if (!settings.adsRemoved) const SizedBox(height: 8),
             ListTile(
               title: Text(
                 l10n.defaultDifficulty,
@@ -321,6 +383,23 @@ class SettingsScreen extends ConsumerWidget {
               ),
               value: settings.rewardAlertEnabled,
               onChanged: (_) => notifier.toggleRewardAlert(),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: Icon(Icons.privacy_tip_outlined,
+                  color: AppTheme.secondaryText),
+              title: Text(
+                l10n.privacyPolicy,
+                style: TextStyle(color: AppTheme.primaryText),
+              ),
+              trailing: Icon(Icons.open_in_new, color: AppTheme.disabledText, size: 18),
+              onTap: () {
+                final isSpanish = settings.locale.languageCode == 'es';
+                final url = Uri.parse(isSpanish
+                    ? 'https://loadcircle.github.io/Solitarie-Spider/privacidad/'
+                    : 'https://loadcircle.github.io/Solitarie-Spider/en/privacy/');
+                launchUrl(url, mode: LaunchMode.externalApplication);
+              },
             ),
             if (kDebugMode) ...[
               const SizedBox(height: 24),

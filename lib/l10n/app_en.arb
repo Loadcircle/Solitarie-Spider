@@ -130,5 +130,11 @@
     }
   },
   "watchAdDoubleXp": "2× XP — Watch Ad",
-  "watchAdSaveResult": "Save My Streak — Watch Ad"
+  "watchAdSaveResult": "Save My Streak — Watch Ad",
+  "removeAds": "Remove Ads",
+  "removeAdsPurchased": "Ad-Free",
+  "removeAdsPrice": "One-time purchase",
+  "purchaseFailed": "Purchase failed. Please try again.",
+  "purchaseRestored": "Purchase restored!",
+  "privacyPolicy": "Privacy Policy"
 }

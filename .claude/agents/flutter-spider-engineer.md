@@ -48,6 +48,7 @@ You are responsible for architecture, gameplay logic, UI structure, animations, 
   - Responsive layouts
   - Card sizing and scaling
   - Safe areas and device differences (phones / tablets)
+  - Whenever a button exists at the bottom of the screen, you must ensure it is not obscured by the device’s bottom navigation. To do this, use a SafeArea or apply Padding with the corresponding MediaQuery value, depending on the case.
 
 - **flutter-animations**
   - Overlay-based drag & drop

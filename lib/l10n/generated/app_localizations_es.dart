@@ -320,4 +320,22 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get watchAdSaveResult => 'Salvar la racha — Ver anuncio';
+
+  @override
+  String get removeAds => 'Quitar anuncios';
+
+  @override
+  String get removeAdsPurchased => 'Sin anuncios';
+
+  @override
+  String get removeAdsPrice => 'Compra única';
+
+  @override
+  String get purchaseFailed => 'Error en la compra. Inténtalo de nuevo.';
+
+  @override
+  String get purchaseRestored => '¡Compra restaurada!';
+
+  @override
+  String get privacyPolicy => 'Política de privacidad';
 }
