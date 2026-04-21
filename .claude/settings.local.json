@@ -21,7 +21,8 @@
       "Bash(where:*)",
       "Bash(\"C:\\\\Users\\\\jesus\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\" -s emulator-5554 logcat -d)",
       "Bash(cmd /c:*)",
-      "Bash(dart analyze:*)"
+      "Bash(dart analyze:*)",
+      "Bash(flutter run *)"
     ]
   }
 }

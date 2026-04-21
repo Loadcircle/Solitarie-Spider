@@ -30,7 +30,7 @@ class MoveValidator {
 
   /// Find the best target column for auto-moving a card sequence.
   /// Returns the target column index, or null if no valid target exists.
-  /// Prefers non-empty columns over empty ones, then nearest by index distance.
+  /// Priority: same-suit non-empty > any-suit non-empty > empty, then nearest by index distance.
   static int? findBestTarget({
     required List<List<PlayingCard>> tableau,
     required int fromColumn,
@@ -42,6 +42,8 @@ class MoveValidator {
     if (!canPickUp(cardsToMove)) return null;
 
     final topCard = cardsToMove.first;
+    int? bestSameSuit;
+    int bestSameSuitDistance = 999;
     int? bestNonEmpty;
     int bestNonEmptyDistance = 999;
     int? bestEmpty;
@@ -53,9 +55,17 @@ class MoveValidator {
 
       final distance = (i - fromColumn).abs();
       if (tableau[i].isNotEmpty) {
-        if (distance < bestNonEmptyDistance) {
-          bestNonEmpty = i;
-          bestNonEmptyDistance = distance;
+        final isSameSuit = tableau[i].last.suit == topCard.suit;
+        if (isSameSuit) {
+          if (distance < bestSameSuitDistance) {
+            bestSameSuit = i;
+            bestSameSuitDistance = distance;
+          }
+        } else {
+          if (distance < bestNonEmptyDistance) {
+            bestNonEmpty = i;
+            bestNonEmptyDistance = distance;
+          }
         }
       } else {
         if (distance < bestEmptyDistance) {
@@ -65,6 +75,6 @@ class MoveValidator {
       }
     }
 
-    return bestNonEmpty ?? bestEmpty;
+    return bestSameSuit ?? bestNonEmpty ?? bestEmpty;
   }
 }

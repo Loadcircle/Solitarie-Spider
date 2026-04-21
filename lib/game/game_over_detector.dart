@@ -73,7 +73,10 @@ class GameOverDetector {
           // 2. Empties the source column → useful (reorganization)
           if (emptiesColumn && tableau[k].isNotEmpty) return false;
 
-          // 3. Same-suit consolidation that IMPROVES the board
+          // 3. Moving a partial sequence to an empty column enables reshuffling
+          if (tableau[k].isEmpty && !emptiesColumn) return false;
+
+          // 4. Same-suit consolidation that IMPROVES the board
           if (tableau[k].isNotEmpty) {
             final targetTop = tableau[k].last;
             if (targetTop.suit == topCard.suit) {

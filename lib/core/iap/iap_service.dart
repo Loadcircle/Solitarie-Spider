@@ -12,15 +12,22 @@ class IAPService {
 
   Future<void> init(Function(bool) onAdsRemovedChanged) async {
     _onAdsRemovedChanged = onAdsRemovedChanged;
+    final available = await InAppPurchase.instance.isAvailable();
+    if (!available) return;
     _sub = InAppPurchase.instance.purchaseStream
         .listen(_handlePurchases);
-    // Restore previous purchases (no-op if offline)
-    await InAppPurchase.instance.restorePurchases();
+    try {
+      await InAppPurchase.instance.restorePurchases();
+    } catch (_) {
+      // Billing service unavailable (emulator, no Play Store, etc.)
+    }
   }
 
   void dispose() => _sub?.cancel();
 
   Future<ProductDetails?> fetchProductDetails() async {
+    final available = await InAppPurchase.instance.isAvailable();
+    if (!available) return null;
     final response = await InAppPurchase.instance
         .queryProductDetails({productId});
     return response.productDetails.firstOrNull;
